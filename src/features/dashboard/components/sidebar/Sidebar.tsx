@@ -1,7 +1,7 @@
 'use client'
 
 import type { User } from '@supabase/supabase-js'
-import { BarChart3, Bell, Building2, LogOut, Settings2, Users } from 'lucide-react'
+import { BarChart3, Bell, Building2, LayoutDashboard, LogOut, Settings2, Users } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
@@ -10,6 +10,11 @@ import { logoutAction } from '@/features/auth/actions/logout.action'
 import { Button } from '@/shared/components/ui/button'
 
 const navigationItems = [
+  {
+    label: 'Vista General',
+    href: '/dashboard' as const,
+    icon: LayoutDashboard,
+  },
   {
     label: 'Configurar Proveedores',
     href: '/dashboard/providers' as const,
@@ -82,7 +87,10 @@ export function Sidebar({ user }: SidebarProps) {
         <ul className="space-y-1">
           {navigationItems.map(item => {
             const Icon = item.icon
-            const isActive = pathname.startsWith(item.href)
+            const isActive =
+              item.href === '/dashboard'
+                ? pathname === '/dashboard'
+                : pathname.startsWith(item.href)
             return (
               <li key={item.href}>
                 <Link

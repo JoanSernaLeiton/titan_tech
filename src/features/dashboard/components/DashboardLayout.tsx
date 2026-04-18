@@ -18,6 +18,7 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
     if (pathname.startsWith('/dashboard/customers')) return 'Clientes'
     if (pathname.startsWith('/dashboard/reports')) return 'Reportes'
     if (pathname.startsWith('/dashboard/alerts')) return 'Alertas'
+    if (pathname === '/dashboard') return 'Vista General'
     return 'Panel principal'
   }, [pathname])
 
