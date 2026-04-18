@@ -7,6 +7,7 @@ import { LoadingState, PageState } from "../layout/PageState";
 
 import { CustomerForm } from "./CustomerForm";
 import { CustomersList } from "./CustomersList";
+import { GlobalMetricsPanel } from "./GlobalMetricsPanel";
 
 import {
   useCreateCustomer,
@@ -70,6 +71,8 @@ export function CustomersPage() {
         </Button>
       )}
     >
+
+      <GlobalMetricsPanel />
 
       {isPending ? (
         <LoadingState message="Cargando clientes..." />
