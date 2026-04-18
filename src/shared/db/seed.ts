@@ -22,50 +22,33 @@ type ProviderMetricMappings = Record<string, MetricMapping>;
 const client = postgres(process.env.DATABASE_URL ?? "");
 const db = drizzle(client);
 
-// Growatt metric mappings
+// Growatt metric mappings — externalId must be the PLANT_ID (numeric string).
+// Real-time metrics come from plant-level endpoints; no per-device real-time API exists
+// for generic inverter types (type=1/4). Device status comes from /v1/device/list.
 const growattMappings: ProviderMetricMappings = {
   energy_today_kwh: {
     method: "GET",
-    path: "/v1/device/inverter/last_new_data",
-    query_params: { device_sn: "{{external_id}}" },
-    response_path: "data.energytoday",
+    path: "/v1/plant/data",
+    query_params: { plant_id: "{{external_id}}" },
+    response_path: "data.today_energy",
   },
   active_power_kw: {
     method: "GET",
-    path: "/v1/device/inverter/last_new_data",
-    query_params: { device_sn: "{{external_id}}" },
-    response_path: "data.pac",
-    transform: "divide_1000",
-  },
-  temperature_c: {
-    method: "GET",
-    path: "/v1/device/inverter/last_new_data",
-    query_params: { device_sn: "{{external_id}}" },
-    response_path: "data.temperature",
-  },
-  ac_frequency_hz: {
-    method: "GET",
-    path: "/v1/device/inverter/last_new_data",
-    query_params: { device_sn: "{{external_id}}" },
-    response_path: "data.fac",
-  },
-  ac_voltage_v: {
-    method: "GET",
-    path: "/v1/device/inverter/last_new_data",
-    query_params: { device_sn: "{{external_id}}" },
-    response_path: "data.vacr",
+    path: "/v1/plant/data",
+    query_params: { plant_id: "{{external_id}}" },
+    response_path: "data.current_power",
   },
   energy_month_kwh: {
     method: "GET",
-    path: "/v1/device/inverter/last_new_data",
-    query_params: { device_sn: "{{external_id}}" },
-    response_path: "data.epvmonth",
+    path: "/v1/plant/data",
+    query_params: { plant_id: "{{external_id}}" },
+    response_path: "data.monthly_energy",
   },
   device_online: {
     method: "GET",
-    path: "/v1/device/inverter/last_new_data",
-    query_params: { device_sn: "{{external_id}}" },
-    response_path: "data.status",
+    path: "/v1/device/list",
+    query_params: { plant_id: "{{external_id}}" },
+    response_path: "data.devices[0].status",
     transform: "status_to_bool_growatt",
   },
 };
