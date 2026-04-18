@@ -8,7 +8,6 @@ export const deviceMetricSnapshots = pgTable("device_metric_snapshots", {
   id: uuid("id").primaryKey().defaultRandom(),
   deviceId: uuid("device_id")
     .notNull()
-    .unique()
     .references(() => customerDevices.id, { onDelete: "cascade" }),
   customerId: uuid("customer_id")
     .notNull()

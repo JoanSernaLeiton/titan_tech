@@ -52,34 +52,27 @@ export async function GET(request: NextRequest) {
 
           polledCount++;
 
-          // Persist latest metrics for this device (upsert — one row per device)
-          await db
-            .insert(deviceMetricSnapshots)
-            .values({
-              deviceId: device.id,
-              customerId: device.customerId,
-              energyTodayKwh:
-                metrics.energy_today_kwh != null ? String(metrics.energy_today_kwh) : null,
-              energyMonthKwh:
-                metrics.energy_month_kwh != null ? String(metrics.energy_month_kwh) : null,
-              activePowerKw:
-                metrics.active_power_kw != null ? String(metrics.active_power_kw) : null,
-              isOnline: metrics.device_online === true,
-              snapshotAt: new Date(),
-            })
-            .onConflictDoUpdate({
-              target: deviceMetricSnapshots.deviceId,
-              set: {
-                energyTodayKwh:
-                  metrics.energy_today_kwh != null ? String(metrics.energy_today_kwh) : null,
-                energyMonthKwh:
-                  metrics.energy_month_kwh != null ? String(metrics.energy_month_kwh) : null,
-                activePowerKw:
-                  metrics.active_power_kw != null ? String(metrics.active_power_kw) : null,
-                isOnline: metrics.device_online === true,
-                snapshotAt: new Date(),
-              },
-            });
+          // Store each poll as a new row (full history). Energy values of 0 are stored
+          // as null — they indicate a transient API gap, not genuine zero production.
+          // Queries use DISTINCT ON (device_id) ORDER BY snapshot_at DESC to read the latest.
+          await db.insert(deviceMetricSnapshots).values({
+            deviceId: device.id,
+            customerId: device.customerId,
+            energyTodayKwh:
+              typeof metrics.energy_today_kwh === "number" && metrics.energy_today_kwh > 0
+                ? String(metrics.energy_today_kwh)
+                : null,
+            energyMonthKwh:
+              typeof metrics.energy_month_kwh === "number" && metrics.energy_month_kwh > 0
+                ? String(metrics.energy_month_kwh)
+                : null,
+            activePowerKw:
+              typeof metrics.active_power_kw === "number"
+                ? String(metrics.active_power_kw)
+                : null,
+            isOnline: metrics.device_online === true,
+            snapshotAt: new Date(),
+          });
 
           const thresholds = await getThresholdsByCustomerId(device.customerId);
           const agreementVariables = await getAgreementVariablesByCustomerId(device.customerId);

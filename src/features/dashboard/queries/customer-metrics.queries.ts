@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, max, sql } from "drizzle-orm";
 
 import { db } from "@/shared/db";
 import { customerDevices } from "@/shared/db/customer-devices.schema";
@@ -32,6 +32,17 @@ export async function getCustomerMetricsRaw(
   customerId: string,
   filters?: { deviceType?: "inverter" | "micro_inverter"; providerSlug?: string }
 ): Promise<CustomerMetricsRaw> {
+  // Subquery: latest snapshot_at per device for this customer (history table)
+  const latestPerDevice = db
+    .select({
+      deviceId: deviceMetricSnapshots.deviceId,
+      latestAt: max(deviceMetricSnapshots.snapshotAt).as("latest_at"),
+    })
+    .from(deviceMetricSnapshots)
+    .where(eq(deviceMetricSnapshots.customerId, customerId))
+    .groupBy(deviceMetricSnapshots.deviceId)
+    .as("latest_per_device");
+
   const conditions = [
     eq(deviceMetricSnapshots.customerId, customerId),
     eq(customerDevices.isEnabled, true),
@@ -56,6 +67,13 @@ export async function getCustomerMetricsRaw(
       snapshotAt: deviceMetricSnapshots.snapshotAt,
     })
     .from(deviceMetricSnapshots)
+    .innerJoin(
+      latestPerDevice,
+      and(
+        eq(deviceMetricSnapshots.deviceId, latestPerDevice.deviceId),
+        eq(deviceMetricSnapshots.snapshotAt, latestPerDevice.latestAt),
+      )
+    )
     .innerJoin(customerDevices, eq(deviceMetricSnapshots.deviceId, customerDevices.id))
     .innerJoin(providers, eq(customerDevices.providerId, providers.id))
     .where(and(...conditions));
