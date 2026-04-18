@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+build/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Test output
+coverage/
+playwright-report/
+test-results/
+
+# Build artifacts
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# Drizzle generated files
+drizzle/
+
+# MCP memory service
+.memory/
+
+# Claude Code runtime
+.claude/worktrees/
+
+# OS
+.DS_Store

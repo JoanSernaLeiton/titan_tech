@@ -1,0 +1,48 @@
+services:
+  memory:
+    build:
+      context: .
+      dockerfile: Dockerfile.memory
+    container_name: mcp-memory
+    ports:
+      - "8765:8765" # MCP streamable-http transport
+    volumes:
+      - ./.memory/data:/app/data
+    environment:
+      MCP_MODE: streamable-http
+      MCP_HTTP_PORT: 8765
+      MCP_HTTP_HOST: 0.0.0.0
+      MCP_ALLOW_ANONYMOUS_ACCESS: "true"
+      MCP_MEMORY_STORAGE_BACKEND: sqlite_vec
+      MCP_MEMORY_SQLITE_PATH: /app/data/memory.db
+      PYTHONUNBUFFERED: "1"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8765/mcp"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  memory-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.memory
+    container_name: mcp-memory-dashboard
+    ports:
+      - "8000:8000" # HTTP dashboard UI
+    volumes:
+      - ./.memory/data:/app/data
+    environment:
+      MCP_MODE: http
+      MCP_HTTP_HOST: 0.0.0.0
+      MCP_HTTP_PORT: 8000
+      MCP_ALLOW_ANONYMOUS_ACCESS: "true"
+      MCP_MEMORY_STORAGE_BACKEND: sqlite_vec
+      MCP_MEMORY_SQLITE_PATH: /app/data/memory.db
+      PYTHONUNBUFFERED: "1"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped

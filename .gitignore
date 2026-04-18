@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js
+.next/
+out/
+build/
+
+# Env — NEVER commit real keys
+.env
+.env.local
+.env.*.local
+# .env.example is committed intentionally
+
+# Testing
+coverage/
+playwright-report/
+test-results/
+
+# Misc
+.DS_Store
+*.pem
+npm-debug.log*
+
+# Drizzle
+drizzle/
+
+# MCP memory service (Docker volume)
+.memory/
+
+# Build artifacts
+tsconfig.tsbuildinfo
+
+# Claude Code runtime state
+.claude/worktrees/

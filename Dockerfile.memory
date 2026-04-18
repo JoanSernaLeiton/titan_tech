@@ -1,0 +1,7 @@
+FROM doobidoo/mcp-memory-service:latest
+
+# Install missing runtime dependencies
+RUN pip install --no-cache-dir \
+    aiosqlite \
+    sentence-transformers \
+    pypdf

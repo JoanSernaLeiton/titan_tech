@@ -1,0 +1,2 @@
+git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(ts|tsx)$' | xargs -r npx eslint --max-warnings 0 --no-warn-ignored
+npx vitest run
