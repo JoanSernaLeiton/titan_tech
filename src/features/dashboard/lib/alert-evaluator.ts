@@ -44,6 +44,18 @@ export function evaluateThresholds(
         alertType: "threshold_breach",
       });
     }
+
+    if (threshold.maxValue !== null && threshold.maxValue !== undefined) {
+      const maxThreshold = parseFloat(threshold.maxValue);
+      if (!isNaN(maxThreshold) && numericValue > maxThreshold) {
+        breaches.push({
+          metric: threshold.metric,
+          triggeredValue: numericValue,
+          thresholdValue: maxThreshold,
+          alertType: "threshold_breach",
+        });
+      }
+    }
   }
 
   return breaches;

@@ -1,0 +1,1 @@
+ALTER TABLE "customer_thresholds" ADD COLUMN "max_value" numeric;

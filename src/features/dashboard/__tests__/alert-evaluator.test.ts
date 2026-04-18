@@ -14,6 +14,7 @@ describe("alert-evaluator", () => {
           customerId: "cust1",
           metric: "efficiency",
           minValue: "75",
+          maxValue: null,
           isEnabled: true,
         },
       ];
@@ -37,6 +38,7 @@ describe("alert-evaluator", () => {
           customerId: "cust1",
           metric: "efficiency",
           minValue: "75",
+          maxValue: null,
           isEnabled: true,
         },
       ];
@@ -54,6 +56,7 @@ describe("alert-evaluator", () => {
           customerId: "cust1",
           metric: "efficiency",
           minValue: "75",
+          maxValue: null,
           isEnabled: false,
         },
       ];
@@ -71,6 +74,7 @@ describe("alert-evaluator", () => {
           customerId: "cust1",
           metric: "efficiency",
           minValue: "75",
+          maxValue: null,
           isEnabled: true,
         },
       ];
@@ -88,6 +92,7 @@ describe("alert-evaluator", () => {
           customerId: "cust1",
           metric: "device_online",
           minValue: "1",
+          maxValue: null,
           isEnabled: true,
         },
       ];
@@ -105,6 +110,7 @@ describe("alert-evaluator", () => {
           customerId: "cust1",
           metric: "device_online",
           minValue: "1",
+          maxValue: null,
           isEnabled: true,
         },
       ];
@@ -128,6 +134,7 @@ describe("alert-evaluator", () => {
           customerId: "cust1",
           metric: "efficiency",
           minValue: "75",
+          maxValue: null,
           isEnabled: true,
         },
         {
@@ -135,6 +142,7 @@ describe("alert-evaluator", () => {
           customerId: "cust1",
           metric: "uptime",
           minValue: "99",
+          maxValue: null,
           isEnabled: true,
         },
       ];
@@ -296,6 +304,7 @@ describe("alert-evaluator", () => {
           customerId: "cust1",
           metric: "efficiency",
           minValue: "75",
+          maxValue: null,
           isEnabled: true,
         },
       ];
@@ -327,6 +336,7 @@ describe("alert-evaluator", () => {
           customerId: "cust1",
           metric: "efficiency",
           minValue: "75",
+          maxValue: null,
           isEnabled: true,
         },
       ];

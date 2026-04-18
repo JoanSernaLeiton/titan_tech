@@ -10,6 +10,7 @@ export const customerThresholds = pgTable("customer_thresholds", {
     .references(() => customers.id, { onDelete: "cascade" }),
   metric: text("metric").notNull(),
   minValue: numeric("min_value").notNull(),
+  maxValue: numeric("max_value"),
   isEnabled: boolean("is_enabled").notNull().default(true),
 });
 

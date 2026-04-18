@@ -35,13 +35,14 @@ export function ThresholdsForm({
   const thresholds = propThresholds.length > 0 ? propThresholds : hookThresholds;
 
   const [formData, setFormData] = useState<
-    Record<string, { minValue: string; enabled: boolean }>
+    Record<string, { minValue: string; maxValue: string; enabled: boolean }>
   >(
-    DEFAULT_METRICS.reduce<Record<string, { minValue: string; enabled: boolean }>>(
+    DEFAULT_METRICS.reduce<Record<string, { minValue: string; maxValue: string; enabled: boolean }>>(
       (acc, metric) => {
         const existing = thresholds.find((t) => t.metric === metric.key);
         acc[metric.key] = {
           minValue: existing != null ? existing.minValue : metric.defaultMin,
+          maxValue: existing?.maxValue ?? metric.defaultMax ?? "",
           enabled: existing != null ? existing.isEnabled : true,
         };
         return acc;
@@ -52,11 +53,12 @@ export function ThresholdsForm({
 
   useEffect(() => {
     setFormData(
-      DEFAULT_METRICS.reduce<Record<string, { minValue: string; enabled: boolean }>>(
+      DEFAULT_METRICS.reduce<Record<string, { minValue: string; maxValue: string; enabled: boolean }>>(
         (acc, metric) => {
           const existing = thresholds.find((t) => t.metric === metric.key);
           acc[metric.key] = {
             minValue: existing != null ? existing.minValue : metric.defaultMin,
+            maxValue: existing?.maxValue ?? metric.defaultMax ?? "",
             enabled: existing != null ? existing.isEnabled : true,
           };
           return acc;
@@ -71,6 +73,7 @@ export function ThresholdsForm({
       customerId: customerId ?? "",
       metric: metric.key,
       minValue: formData[metric.key]?.minValue ?? metric.defaultMin,
+      maxValue: metric.hasMax ? (formData[metric.key]?.maxValue || null) : null,
       isEnabled: formData[metric.key]?.enabled ?? true,
     }));
 
@@ -91,12 +94,13 @@ export function ThresholdsForm({
             <TableRow>
               <TableHead>Métrica</TableHead>
               <TableHead>Valor Mínimo</TableHead>
+              <TableHead>Valor Máximo</TableHead>
               <TableHead>Habilitado</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {DEFAULT_METRICS.map((metric) => {
-              const row = formData[metric.key] ?? { minValue: metric.defaultMin, enabled: true };
+              const row = formData[metric.key] ?? { minValue: metric.defaultMin, maxValue: metric.defaultMax ?? "", enabled: true };
               const isDisabled = !row.enabled;
               return (
                 <TableRow key={metric.key} className={isDisabled ? "opacity-50" : ""}>
@@ -120,10 +124,32 @@ export function ThresholdsForm({
                           onChange={(e) => {
                             setFormData((prev) => ({
                               ...prev,
-                              [metric.key]: {
-                                minValue: e.target.value,
-                                enabled: prev[metric.key]?.enabled ?? true,
-                              },
+                              [metric.key]: { ...prev[metric.key]!, minValue: e.target.value },
+                            }));
+                          }}
+                          className="pr-12 w-36"
+                        />
+                        <span className="pointer-events-none absolute right-3 text-xs font-medium text-muted-foreground">
+                          {metric.unit}
+                        </span>
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {metric.type === "boolean" || !metric.hasMax ? (
+                      <span className="text-muted-foreground">—</span>
+                    ) : (
+                      <div className="relative flex items-center w-36">
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="0"
+                          disabled={isDisabled}
+                          value={row.maxValue}
+                          onChange={(e) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              [metric.key]: { ...prev[metric.key]!, maxValue: e.target.value },
                             }));
                           }}
                           className="pr-12 w-36"
@@ -140,10 +166,7 @@ export function ThresholdsForm({
                       onCheckedChange={(checked: boolean) => {
                         setFormData((prev) => ({
                           ...prev,
-                          [metric.key]: {
-                            minValue: prev[metric.key]?.minValue ?? metric.defaultMin,
-                            enabled: checked,
-                          },
+                          [metric.key]: { ...prev[metric.key]!, enabled: checked },
                         }));
                       }}
                     />
