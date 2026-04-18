@@ -80,13 +80,13 @@ describe("alert-evaluator", () => {
       expect(breaches).toHaveLength(0);
     });
 
-    it("ignores non-numeric metrics", () => {
-      const metrics = { status: true };
+    it("does not breach when boolean metric is true (online)", () => {
+      const metrics = { device_online: true };
       const thresholds: SelectCustomerThreshold[] = [
         {
           id: "1",
           customerId: "cust1",
-          metric: "status",
+          metric: "device_online",
           minValue: "1",
           isEnabled: true,
         },
@@ -95,6 +95,29 @@ describe("alert-evaluator", () => {
       const breaches = evaluateThresholds(metrics, thresholds);
 
       expect(breaches).toHaveLength(0);
+    });
+
+    it("breaches when boolean metric is false (offline)", () => {
+      const metrics = { device_online: false };
+      const thresholds: SelectCustomerThreshold[] = [
+        {
+          id: "1",
+          customerId: "cust1",
+          metric: "device_online",
+          minValue: "1",
+          isEnabled: true,
+        },
+      ];
+
+      const breaches = evaluateThresholds(metrics, thresholds);
+
+      expect(breaches).toHaveLength(1);
+      expect(breaches[0]).toMatchObject({
+        metric: "device_online",
+        triggeredValue: 0,
+        thresholdValue: 1,
+        alertType: "threshold_breach",
+      });
     });
 
     it("evaluates multiple thresholds", () => {

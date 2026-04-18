@@ -112,8 +112,11 @@ function applyTransform(value: unknown, transform: string): unknown {
   }
 
   if (transform === "status_to_bool_growatt") {
+    // 0=Standby (nighttime, device reachable), 1=Normal; ≥2 means fault/disconnected
     if (value === 1 || value === "1") return true;
-    if (value === 0 || value === "0") return false;
+    if (value === 0 || value === "0") return true;
+    const n = typeof value === "string" ? parseInt(value, 10) : typeof value === "number" ? value : NaN;
+    if (!isNaN(n)) return n >= 2 ? false : true;
     return null;
   }
 

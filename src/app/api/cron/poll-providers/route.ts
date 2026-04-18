@@ -9,6 +9,7 @@ import { getAllEnabledDevicesWithProvider } from "@/features/dashboard/queries/c
 import { getThresholdsByCustomerId } from "@/features/dashboard/queries/customer-thresholds.queries";
 import { db } from "@/shared/db";
 import { alerts } from "@/shared/db/alerts.schema";
+import { deviceMetricSnapshots } from "@/shared/db/device-metric-snapshots.schema";
 
 export async function GET(request: NextRequest) {
   const cronSecret = process.env.CRON_SECRET;
@@ -49,6 +50,31 @@ export async function GET(request: NextRequest) {
           );
 
           polledCount++;
+
+          // Persist latest metrics for this device (upsert — one row per device)
+          await db
+            .insert(deviceMetricSnapshots)
+            .values({
+              deviceId: device.id,
+              customerId: device.customerId,
+              energyTodayKwh:
+                metrics.energy_today_kwh != null ? String(metrics.energy_today_kwh) : null,
+              activePowerKw:
+                metrics.active_power_kw != null ? String(metrics.active_power_kw) : null,
+              isOnline: metrics.device_online === true,
+              snapshotAt: new Date(),
+            })
+            .onConflictDoUpdate({
+              target: deviceMetricSnapshots.deviceId,
+              set: {
+                energyTodayKwh:
+                  metrics.energy_today_kwh != null ? String(metrics.energy_today_kwh) : null,
+                activePowerKw:
+                  metrics.active_power_kw != null ? String(metrics.active_power_kw) : null,
+                isOnline: metrics.device_online === true,
+                snapshotAt: new Date(),
+              },
+            });
 
           const thresholds = await getThresholdsByCustomerId(device.customerId);
           const agreementVariables = await getAgreementVariablesByCustomerId(device.customerId);

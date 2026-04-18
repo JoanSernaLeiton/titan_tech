@@ -7,6 +7,8 @@ import { DeviceForm } from "../devices/DeviceForm";
 import { DevicesList } from "../devices/DevicesList";
 import { ThresholdsForm } from "../thresholds/ThresholdsForm";
 
+import { CustomerMetricsPanel } from "./CustomerMetricsPanel";
+
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import {
@@ -107,6 +109,8 @@ export function CustomerDetail({
           <p className="text-muted-foreground mt-1">{customer.email}</p>
         </div>
       </div>
+
+      <CustomerMetricsPanel customerId={customer.id} agreementVariables={variables} />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
