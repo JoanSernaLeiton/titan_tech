@@ -51,6 +51,26 @@ export async function upsertAgreementVariable(data: InsertCustomerAgreementVaria
   }
 }
 
+export async function upsertAllAgreementVariables(data: InsertCustomerAgreementVariable[]): Promise<ActionResult> {
+  try {
+    const user = await getUser();
+    if (user == null) return { status: "error", message: "No autorizado" };
+    for (const item of data) {
+      const validated = insertCustomerAgreementVariableSchema.parse(item);
+      await db
+        .insert(customerAgreementVariables)
+        .values(validated)
+        .onConflictDoUpdate({
+          target: [customerAgreementVariables.customerId, customerAgreementVariables.variable],
+          set: { monthlyTarget: validated.monthlyTarget, unit: validated.unit, enabled: validated.enabled },
+        });
+    }
+    return { status: "success", message: "Variables de acuerdo guardadas" };
+  } catch (error) {
+    return { status: "error", message: error instanceof Error ? error.message : "No se pudo guardar" };
+  }
+}
+
 export async function deleteAgreementVariable(id: string): Promise<ActionResult> {
   try {
     const user = await getUser();

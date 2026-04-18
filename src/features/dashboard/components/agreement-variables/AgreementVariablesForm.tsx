@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { useAgreementVariables, useUpsertAgreementVariable } from "@/features/dashboard/hooks/use-agreement-variables";
+import { useAgreementVariables, useUpsertAllAgreementVariables } from "@/features/dashboard/hooks/use-agreement-variables";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import {
@@ -78,7 +78,7 @@ export function AgreementVariablesForm({
   onSave,
 }: AgreementVariablesFormProps) {
   const { data: hookVariables = [] } = useAgreementVariables(customerId ?? "");
-  const upsertMutation = useUpsertAgreementVariable();
+  const upsertAllMutation = useUpsertAllAgreementVariables();
   const variables = propVariables.length > 0 ? propVariables : hookVariables;
 
   const [formData, setFormData] = useState<
@@ -131,9 +131,7 @@ export function AgreementVariablesForm({
     });
 
     if (customerId != null && propVariables.length === 0) {
-      updatedVariables.forEach((variable) => {
-        upsertMutation.mutate(variable as InsertCustomerAgreementVariable);
-      });
+      upsertAllMutation.mutate(updatedVariables as InsertCustomerAgreementVariable[]);
     } else if (onSave != null) {
       onSave(updatedVariables as Partial<SelectCustomerAgreementVariable>[]);
     }
