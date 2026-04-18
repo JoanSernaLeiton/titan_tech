@@ -5,13 +5,6 @@ import { useEffect, useState } from "react";
 import { useAgreementVariables, useUpsertAllAgreementVariables } from "@/features/dashboard/hooks/use-agreement-variables";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/ui/select";
 import { Switch } from "@/shared/components/ui/switch";
 import {
   Table,
@@ -23,20 +16,12 @@ import {
 } from "@/shared/components/ui/table";
 import type { InsertCustomerAgreementVariable, SelectCustomerAgreementVariable } from "@/shared/db/customer-agreement-variables.schema";
 
-const UNIT_OPTIONS = [
-  "kWh",
-  "MWh",
-  "GWh",
-  "kW",
-  "MW",
-  "%",
-  "kg",
-  "ton",
-  "COP",
-  "USD",
-  "EUR",
-  "MXN",
-];
+function formatColombia(raw: string): string {
+  if (raw === "") return "";
+  const num = parseFloat(raw);
+  if (isNaN(num)) return raw;
+  return new Intl.NumberFormat("es-CO").format(num);
+}
 
 const VARIABLES = [
   {
@@ -47,7 +32,7 @@ const VARIABLES = [
   {
     key: "dinero_ahorrado",
     label: "Dinero Ahorrado",
-    defaultUnit: "USD",
+    defaultUnit: "COP",
   },
   {
     key: "disponibilidad_sistema",
@@ -81,6 +66,7 @@ export function AgreementVariablesForm({
   const upsertAllMutation = useUpsertAllAgreementVariables();
   const variables = propVariables.length > 0 ? propVariables : hookVariables;
 
+  const [editingKey, setEditingKey] = useState<string | null>(null);
   const [formData, setFormData] = useState<
     Record<string, { monthlyTarget: string; unit: string; enabled: boolean }>
   >(
@@ -161,46 +147,27 @@ export function AgreementVariablesForm({
                   <TableCell className="font-medium">{variable.label}</TableCell>
                   <TableCell>
                     <Input
-                      type="number"
-                      step="0.01"
+                      type="text"
+                      inputMode="numeric"
                       placeholder="0"
-                      value={data.monthlyTarget}
-                      onChange={(e) =>
-                        {
-                          setFormData({
-                            ...formData,
-                            [variable.key]: {
-                              ...data,
-                              monthlyTarget: e.target.value,
-                            },
-                          });
-                        }
-                      }
+                      value={editingKey === variable.key ? data.monthlyTarget : formatColombia(data.monthlyTarget)}
+                      onFocus={() => { setEditingKey(variable.key); }}
+                      onBlur={() => { setEditingKey(null); }}
+                      onChange={(e) => {
+                        const raw = e.target.value.replace(/\./g, "").replace(",", ".");
+                        setFormData({
+                          ...formData,
+                          [variable.key]: {
+                            ...data,
+                            monthlyTarget: raw,
+                          },
+                        });
+                      }}
                       className="w-32"
                     />
                   </TableCell>
                   <TableCell>
-                    <Select value={data.unit} onValueChange={(value) => {
-                      setFormData({
-                        ...formData,
-                        [variable.key]: {
-                          ...data,
-                          unit: value,
-                        },
-                      });
-                    }}
-                    >
-                      <SelectTrigger className="w-24">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {UNIT_OPTIONS.map((unit) => (
-                          <SelectItem key={unit} value={unit}>
-                            {unit}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <span className="text-sm font-medium text-muted-foreground">{data.unit}</span>
                   </TableCell>
                   <TableCell>
                     <Switch
