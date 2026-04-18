@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { use } from "react";
 
 import { CustomerDetail } from "@/features/dashboard/components/customers/CustomerDetail";
+import { DashboardPageShell } from "@/features/dashboard/components/layout/DashboardPageShell";
+import { LoadingState, PageState } from "@/features/dashboard/components/layout/PageState";
 import { useAgreementVariables } from "@/features/dashboard/hooks/use-agreement-variables";
 import { useCustomerDevices } from "@/features/dashboard/hooks/use-customer-devices";
 import {
@@ -14,6 +16,7 @@ import {
 import { useCustomer } from "@/features/dashboard/hooks/use-customers";
 import { useProviders } from "@/features/dashboard/hooks/use-providers";
 import { useThresholds } from "@/features/dashboard/hooks/use-thresholds";
+import { Button } from "@/shared/components/ui/button";
 import type { InsertCustomerDevice, SelectCustomerDevice } from "@/shared/db/customer-devices.schema";
 import type { SelectProvider } from "@/shared/db/providers.schema";
 
@@ -27,7 +30,7 @@ export default function CustomerDetailPage({
   const router = useRouter();
   const { id: customerId } = use(params);
 
-  const { data: customer } = useCustomer(customerId);
+  const { data: customer, isPending, isError } = useCustomer(customerId);
   const { data: devices = [] } = useCustomerDevices(customerId);
   const { data: variables = [] } = useAgreementVariables(customerId);
   const { data: thresholds = [] } = useThresholds(customerId);
@@ -78,11 +81,54 @@ export default function CustomerDetailPage({
     {}
   );
 
+  if (isPending) {
+    return (
+      <DashboardPageShell
+        title="Cliente"
+        description="Cargando detalles del cliente..."
+        actions={(
+          <Button variant="outline" onClick={handleBack}>
+            Volver
+          </Button>
+        )}
+      >
+        <LoadingState message="Cargando cliente..." />
+      </DashboardPageShell>
+    );
+  }
+
+  if (isError) {
+    return (
+      <DashboardPageShell
+        title="Cliente"
+        description="Ocurrió un error al cargar los datos."
+        actions={(
+          <Button variant="outline" onClick={handleBack}>
+            Volver
+          </Button>
+        )}
+      >
+        <PageState
+          tone="error"
+          message="No se pudo cargar el cliente. Por favor, intenta de nuevo."
+        />
+      </DashboardPageShell>
+    );
+  }
+
   if (customer == null) {
     return (
-      <div className="p-8">
-        <p>Cliente no encontrado</p>
-      </div>
+      <DashboardPageShell
+        title="Cliente no encontrado"
+        description="El cliente solicitado no existe o fue eliminado."
+        actions={(
+          <Button variant="outline" onClick={handleBack}>
+            Volver
+          </Button>
+        )}
+      >
+        <PageState message="Cliente no encontrado." />
+      </DashboardPageShell>
     );
   }
 
