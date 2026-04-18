@@ -19,6 +19,7 @@
     "db:push": "drizzle-kit push",
     "db:pull": "drizzle-kit pull",
     "db:seed": "tsx src/shared/db/seed.ts",
+    "db:seed:customers": "tsx src/shared/db/seed-customers.ts",
     "db:studio": "drizzle-kit studio",
     "prepare": "husky"
   },
