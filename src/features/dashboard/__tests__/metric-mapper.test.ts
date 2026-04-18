@@ -251,6 +251,99 @@ describe("metric-mapper", () => {
     });
   });
 
+  describe("extractFromDataList (Deye dataList_path)", () => {
+    const deyeResponse = {
+      deviceDataList: [
+        {
+          deviceSn: "SN123",
+          deviceState: 1,
+          dataList: [
+            { key: "DailyActiveProduction", value: "8.5", unit: "kWh" },
+            { key: "GridFrequency", value: "60.1", unit: "Hz" },
+            { key: "ACVoltageRUA", value: "220.3", unit: "V" },
+            { key: "DC Temperature", value: "45.2", unit: "℃" },
+          ],
+        },
+      ],
+    };
+
+    it("extracts metric from dataList by alias", async () => {
+      vi.mocked(middlewareRequest).mockResolvedValue(deyeResponse);
+
+      const result = await metricMapper.fetchMetricForDevice("deye", "SN123", "energy_today_kwh", {
+        path: "/v1.0/device/latest",
+        method: "POST",
+        body: { deviceList: ["{{external_id}}"] },
+        dataList_path: "deviceDataList[0].dataList",
+        key_aliases: ["DailyActiveProduction", "Today's Production", "Daily Energy"],
+      });
+
+      expect(result).toBe(8.5);
+    });
+
+    it("tries all aliases and returns first match", async () => {
+      vi.mocked(middlewareRequest).mockResolvedValue(deyeResponse);
+
+      const result = await metricMapper.fetchMetricForDevice("deye", "SN123", "ac_frequency_hz", {
+        path: "/v1.0/device/latest",
+        method: "POST",
+        body: { deviceList: ["{{external_id}}"] },
+        dataList_path: "deviceDataList[0].dataList",
+        key_aliases: ["NonExistentKey", "GridFrequency", "ACOutputFrequencyR"],
+      });
+
+      expect(result).toBe(60.1);
+    });
+
+    it("returns null when no alias matches in dataList", async () => {
+      vi.mocked(middlewareRequest).mockResolvedValue(deyeResponse);
+
+      const result = await metricMapper.fetchMetricForDevice("deye", "SN123", "unknown", {
+        path: "/v1.0/device/latest",
+        method: "POST",
+        body: { deviceList: ["{{external_id}}"] },
+        dataList_path: "deviceDataList[0].dataList",
+        key_aliases: ["NoMatch1", "NoMatch2"],
+      });
+
+      expect(result).toBeNull();
+    });
+
+    it("extracts device_online via response_path on Deye response", async () => {
+      vi.mocked(middlewareRequest).mockResolvedValue(deyeResponse);
+
+      const result = await metricMapper.fetchMetricForDevice("deye", "SN123", "device_online", {
+        path: "/v1.0/device/latest",
+        method: "POST",
+        body: { deviceList: ["{{external_id}}"] },
+        response_path: "deviceDataList[0].deviceState",
+        transform: "status_to_bool_deye",
+      });
+
+      expect(result).toBe(true);
+    });
+
+    it("substitutes {{external_id}} inside deviceList array", async () => {
+      vi.mocked(middlewareRequest).mockResolvedValue(deyeResponse);
+
+      await metricMapper.fetchMetricForDevice("deye", "SN123", "energy_today_kwh", {
+        path: "/v1.0/device/latest",
+        method: "POST",
+        body: { deviceList: ["{{external_id}}"] },
+        dataList_path: "deviceDataList[0].dataList",
+        key_aliases: ["DailyActiveProduction"],
+      });
+
+      expect(vi.mocked(middlewareRequest)).toHaveBeenCalledWith(
+        "deye",
+        "/v1.0/device/latest",
+        expect.objectContaining({
+          body: { deviceList: ["SN123"] },
+        })
+      );
+    });
+  });
+
   describe("fetchAllMetricsForDevice", () => {
     it("fetches all metrics in parallel", async () => {
       vi.mocked(middlewareRequest).mockResolvedValue({ value: 100 });

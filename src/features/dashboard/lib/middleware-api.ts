@@ -1,4 +1,3 @@
-const BASE_URL = "https://techos.thetribu.dev";
 const MAX_RETRIES = 3;
 const INITIAL_BACKOFF_MS = 1000;
 
@@ -15,6 +14,11 @@ export async function middlewareRequest(
     body?: unknown;
   }
 ): Promise<unknown> {
+  const baseUrl = process.env.TINKU_BASE_URL;
+  if (baseUrl == null || baseUrl === "") {
+    throw new Error("TINKU_BASE_URL environment variable is not set");
+  }
+
   const apiKey = process.env.TINKU_API_KEY;
   if (apiKey == null || apiKey === "") {
     throw new Error("TINKU_API_KEY environment variable is not set");
@@ -29,7 +33,7 @@ export async function middlewareRequest(
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
-      let url = `${BASE_URL}/${providerSlug}${path}`;
+      let url = `${baseUrl}/${providerSlug}${path}`;
 
       if (options.queryParams != null && Object.keys(options.queryParams).length > 0) {
         const params = new URLSearchParams(options.queryParams);
