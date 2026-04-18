@@ -10,6 +10,7 @@ const DEFAULT_CO2_KG_PER_KWH = 0.126;
 export interface CustomerMetricsSummary {
   totalDevices: number;
   onlineDevices: number;
+  snapshotCount: number;
   availabilityPct: number;
   energySavedKwh: number;
   moneySaved: number;
@@ -66,6 +67,7 @@ export async function getCustomerMetricsSummaryAction(
   return {
     totalDevices: raw.totalDevices,
     onlineDevices: raw.onlineDevices,
+    snapshotCount: raw.rows.length,
     availabilityPct,
     energySavedKwh: raw.energyTodayKwhSum,
     moneySaved: raw.energyTodayKwhSum * tariffRate,

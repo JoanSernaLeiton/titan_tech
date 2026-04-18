@@ -50,13 +50,26 @@ export function CustomerMetricsPanel({
   const hasTargets = agreementVariables.some((v) => v.enabled);
 
   const availabilityColor =
-    data == null
+    data == null || data.snapshotCount === 0
       ? "secondary"
       : data.availabilityPct >= 90
         ? "default"
         : data.availabilityPct >= 60
           ? "secondary"
-          : "destructive";
+          : data.onlineDevices === 0
+            ? "secondary"
+            : "destructive";
+
+  const availabilityLabel =
+    data == null || data.snapshotCount === 0
+      ? "Sin datos"
+      : data.availabilityPct >= 90
+        ? "Óptimo"
+        : data.availabilityPct >= 60
+          ? "Parcial"
+          : data.onlineDevices === 0
+            ? "Inactivo"
+            : "Crítico";
 
   return (
     <div className="space-y-4">
@@ -139,11 +152,7 @@ export function CustomerMetricsPanel({
           badge={
             data != null ? (
               <Badge variant={availabilityColor}>
-                {data.availabilityPct >= 90
-                  ? "Óptimo"
-                  : data.availabilityPct >= 60
-                    ? "Parcial"
-                    : "Crítico"}
+                {availabilityLabel}
               </Badge>
             ) : undefined
           }
