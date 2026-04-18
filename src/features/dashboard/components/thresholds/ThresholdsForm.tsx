@@ -19,10 +19,38 @@ import type { InsertCustomerThreshold, SelectCustomerThreshold } from "@/shared/
 const EMPTY_THRESHOLDS: SelectCustomerThreshold[] = [];
 
 const DEFAULT_METRICS = [
-  { key: "energy_today_kwh", label: "Energía de Hoy (kWh)", defaultMin: "1" },
-  { key: "ac_frequency_hz", label: "Frecuencia CA (Hz)", defaultMin: "54" },
-  { key: "ac_voltage_v", label: "Voltaje CA (V)", defaultMin: "108" },
-  { key: "device_online", label: "Dispositivo en Línea", defaultMin: "1" },
+  {
+    key: "energy_today_kwh",
+    label: "Energía de Hoy",
+    description: "Alerta si la energía generada en el día es menor al mínimo",
+    defaultMin: "1",
+    unit: "kWh",
+    type: "number" as const,
+  },
+  {
+    key: "ac_frequency_hz",
+    label: "Frecuencia CA",
+    description: "Alerta si la frecuencia de la red eléctrica cae por debajo del mínimo",
+    defaultMin: "54",
+    unit: "Hz",
+    type: "number" as const,
+  },
+  {
+    key: "ac_voltage_v",
+    label: "Voltaje CA",
+    description: "Alerta si el voltaje de salida cae por debajo del mínimo",
+    defaultMin: "108",
+    unit: "V",
+    type: "number" as const,
+  },
+  {
+    key: "device_online",
+    label: "Dispositivo en Línea",
+    description: "Alerta si el dispositivo pierde conectividad",
+    defaultMin: "1",
+    unit: "",
+    type: "boolean" as const,
+  },
 ];
 
 interface ThresholdsFormProps {
@@ -42,8 +70,8 @@ export function ThresholdsForm({
 
   const [formData, setFormData] = useState<
     Record<string, { minValue: string; enabled: boolean }>
-  >({
-    ...DEFAULT_METRICS.reduce<Record<string, { minValue: string; enabled: boolean }>>(
+  >(
+    DEFAULT_METRICS.reduce<Record<string, { minValue: string; enabled: boolean }>>(
       (acc, metric) => {
         const existing = thresholds.find((t) => t.metric === metric.key);
         acc[metric.key] = {
@@ -53,12 +81,12 @@ export function ThresholdsForm({
         return acc;
       },
       {}
-    ),
-  });
+    )
+  );
 
   useEffect(() => {
-    setFormData({
-      ...DEFAULT_METRICS.reduce<Record<string, { minValue: string; enabled: boolean }>>(
+    setFormData(
+      DEFAULT_METRICS.reduce<Record<string, { minValue: string; enabled: boolean }>>(
         (acc, metric) => {
           const existing = thresholds.find((t) => t.metric === metric.key);
           acc[metric.key] = {
@@ -68,8 +96,8 @@ export function ThresholdsForm({
           return acc;
         },
         {}
-      ),
-    });
+      )
+    );
   }, [thresholds]);
 
   const handleSave = () => {
@@ -101,43 +129,62 @@ export function ThresholdsForm({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {DEFAULT_METRICS.map((metric) => (
-              <TableRow key={metric.key}>
-                <TableCell className="font-medium">{metric.label}</TableCell>
-                <TableCell>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    placeholder="0"
-                    value={formData[metric.key]?.minValue ?? ""}
-                    onChange={(e) => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        [metric.key]: {
-                          minValue: e.target.value,
-                          enabled: prev[metric.key]?.enabled ?? true,
-                        },
-                      }));
-                    }}
-                    className="w-32"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Switch
-                    checked={formData[metric.key]?.enabled ?? true}
-                    onCheckedChange={(checked: boolean) => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        [metric.key]: {
-                          minValue: prev[metric.key]?.minValue ?? "",
-                          enabled: checked,
-                        },
-                      }));
-                    }}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
+            {DEFAULT_METRICS.map((metric) => {
+              const row = formData[metric.key] ?? { minValue: metric.defaultMin, enabled: true };
+              const isDisabled = !row.enabled;
+              return (
+                <TableRow key={metric.key} className={isDisabled ? "opacity-50" : ""}>
+                  <TableCell>
+                    <p className="font-medium">{metric.label}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{metric.description}</p>
+                  </TableCell>
+                  <TableCell>
+                    {metric.type === "boolean" ? (
+                      <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                        Debe estar en línea
+                      </span>
+                    ) : (
+                      <div className="relative flex items-center w-36">
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="0"
+                          disabled={isDisabled}
+                          value={row.minValue}
+                          onChange={(e) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              [metric.key]: {
+                                minValue: e.target.value,
+                                enabled: prev[metric.key]?.enabled ?? true,
+                              },
+                            }));
+                          }}
+                          className="pr-12 w-36"
+                        />
+                        <span className="pointer-events-none absolute right-3 text-xs font-medium text-muted-foreground">
+                          {metric.unit}
+                        </span>
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Switch
+                      checked={row.enabled}
+                      onCheckedChange={(checked: boolean) => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          [metric.key]: {
+                            minValue: prev[metric.key]?.minValue ?? metric.defaultMin,
+                            enabled: checked,
+                          },
+                        }));
+                      }}
+                    />
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
