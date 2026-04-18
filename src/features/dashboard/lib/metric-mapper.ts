@@ -10,6 +10,9 @@ export interface MetricMapping {
   // Navigate to an array at this path, then search for {key, value} pairs where key ∈ key_aliases.
   // Used for Deye's deviceDataList[0].dataList structure.
   dataList_path?: string;
+  // Divide the value at response_path by the value at this path in the same response.
+  // Used for computing specific yield (kWh/kWp) = today_energy / peak_power_kw.
+  divide_by_path?: string;
   transform?: "divide_1000" | "status_to_bool_growatt" | "status_to_bool_huawei" | "status_to_bool_deye";
 }
 
@@ -173,6 +176,14 @@ export async function fetchMetricForDevice(
 
     if (value === null || value === undefined) {
       return null;
+    }
+
+    if (mapping.divide_by_path != null) {
+      const denominator = extractByPath(response, mapping.divide_by_path);
+      const num = typeof value === "number" ? value : parseFloat(value as string);
+      const den = typeof denominator === "number" ? denominator : parseFloat(denominator as string);
+      if (isNaN(num) || isNaN(den) || den === 0) return null;
+      return num / den;
     }
 
     if (mapping.transform != null) {

@@ -14,6 +14,7 @@ interface MetricMapping {
   response_path?: string;
   key_aliases?: string[];
   dataList_path?: string;
+  divide_by_path?: string;
   transform?: string;
 }
 
@@ -50,6 +51,15 @@ const growattMappings: ProviderMetricMappings = {
     query_params: { plant_id: "{{external_id}}" },
     response_path: "data.devices[0].status",
     transform: "status_to_bool_growatt",
+  },
+  // Specific yield (kWh/kWp) = today_energy ÷ installed peak capacity.
+  // Growatt does not expose a direct PR field; this computes it from plant data.
+  performance_ratio_pct: {
+    method: "GET",
+    path: "/v1/plant/data",
+    query_params: { plant_id: "{{external_id}}" },
+    response_path: "data.today_energy",
+    divide_by_path: "data.peak_power_actual",
   },
 };
 
