@@ -35,6 +35,7 @@ interface AlertsFiltersProps {
   filters: AlertFilters;
   onFiltersChange: (filters: AlertFilters) => void;
   resultCount: number;
+  onDownload: () => void;
 }
 
 function hasActiveFilters(filters: AlertFilters): boolean {
@@ -48,7 +49,7 @@ function hasActiveFilters(filters: AlertFilters): boolean {
   );
 }
 
-export function AlertsFilters({ filters, onFiltersChange, resultCount }: AlertsFiltersProps) {
+export function AlertsFilters({ filters, onFiltersChange, resultCount, onDownload }: AlertsFiltersProps) {
   const [searchInput, setSearchInput] = useState(filters.customerSearch);
 
   useEffect(() => {
@@ -174,6 +175,16 @@ export function AlertsFilters({ filters, onFiltersChange, resultCount }: AlertsF
           className="h-9 self-end"
         >
           Limpiar filtros
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={!active}
+          onClick={onDownload}
+          className="h-9 self-end"
+        >
+          Descargar CSV
         </Button>
       </div>
 

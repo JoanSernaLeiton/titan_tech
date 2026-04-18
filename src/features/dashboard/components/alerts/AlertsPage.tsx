@@ -42,6 +42,64 @@ const STATUS_ORDER: Record<Alert["status"], number> = {
   resolved: 2,
 };
 
+const STATUS_CSV_LABELS: Record<Alert["status"], string> = {
+  pending: "Pendiente",
+  under_review: "En Revisión",
+  resolved: "Resuelto",
+};
+
+const ALERT_TYPE_CSV_LABELS: Record<Alert["alertType"], string> = {
+  threshold_breach: "Violación de Umbral",
+  agreement_breach: "Violación de Acuerdo",
+};
+
+function downloadCsv(alerts: Alert[]): void {
+  const formatDate = (date: Date) =>
+    new Date(date).toLocaleDateString("es-ES", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+  const escape = (value: string) => `"${value.replace(/"/g, '""')}"`;
+
+  const headers = [
+    "Cliente",
+    "Dispositivo",
+    "Métrica",
+    "Valor Detectado",
+    "Umbral",
+    "Fecha y Hora",
+    "Tipo de Alerta",
+    "Estado",
+  ];
+
+  const rows = alerts.map((alert) => [
+    alert.customerName,
+    alert.deviceName,
+    alert.metricLabel,
+    alert.formattedValue,
+    alert.formattedThreshold,
+    formatDate(alert.timestamp),
+    ALERT_TYPE_CSV_LABELS[alert.alertType],
+    STATUS_CSV_LABELS[alert.status],
+  ]);
+
+  const csv = [headers, ...rows]
+    .map((row) => row.map(escape).join(","))
+    .join("\n");
+
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `alertas-${new Date().toISOString().split("T")[0]}.csv`;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
 export function AlertsPage() {
   const { data: rawAlerts = [], isPending, isError } = useAlerts();
   const updateAlertMutation = useUpdateAlertStatus();
@@ -184,6 +242,7 @@ export function AlertsPage() {
             filters={filters}
             onFiltersChange={setFilters}
             resultCount={filteredAndSorted.length}
+            onDownload={() => { downloadCsv(filteredAndSorted); }}
           />
           <AlertsList
             alerts={filteredAndSorted}
