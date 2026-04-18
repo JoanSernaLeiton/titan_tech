@@ -180,6 +180,11 @@ export async function fetchMetricForDevice(
       return value;
     }
 
+    if (typeof value === "string") {
+      const num = parseFloat(value);
+      if (!isNaN(num)) return num;
+    }
+
     return null;
   } catch (error) {
     // eslint-disable-next-line no-console
