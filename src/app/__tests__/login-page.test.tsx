@@ -29,6 +29,5 @@ describe("LoginPage", () => {
     render(<LoginPage />);
 
     // Assert
-    expect(screen.getByText(/inicia sesión en tu cuenta/i)).toBeInTheDocument();
-  });
+  expect(screen.getByText(/inicia sesion para acceder a una experiencia simple/i)).toBeInTheDocument();  });
 });
