@@ -69,13 +69,17 @@ export function ThresholdsForm({
   }, [thresholds]);
 
   const handleSave = () => {
-    const updatedThresholds = DEFAULT_METRICS.map((metric) => ({
-      customerId: customerId ?? "",
-      metric: metric.key,
-      minValue: formData[metric.key]?.minValue ?? metric.defaultMin,
-      maxValue: metric.hasMax ? (formData[metric.key]?.maxValue || null) : null,
-      isEnabled: formData[metric.key]?.enabled ?? true,
-    }));
+    const updatedThresholds = DEFAULT_METRICS.map((metric) => {
+      const rowData = formData[metric.key];
+      const maxVal = rowData?.maxValue;
+      return {
+        customerId: customerId ?? "",
+        metric: metric.key,
+        minValue: rowData?.minValue ?? metric.defaultMin,
+        maxValue: metric.hasMax ? (maxVal !== "" && maxVal != null ? maxVal : null) : null,
+        isEnabled: rowData?.enabled ?? true,
+      };
+    });
 
     if (customerId != null && propThresholds.length === 0) {
       updatedThresholds.forEach((threshold) => {
@@ -124,7 +128,11 @@ export function ThresholdsForm({
                           onChange={(e) => {
                             setFormData((prev) => ({
                               ...prev,
-                              [metric.key]: { ...prev[metric.key]!, minValue: e.target.value },
+                              [metric.key]: {
+                                minValue: e.target.value,
+                                maxValue: prev[metric.key]?.maxValue ?? "",
+                                enabled: prev[metric.key]?.enabled ?? true,
+                              },
                             }));
                           }}
                           className="pr-12 w-36"
@@ -149,7 +157,11 @@ export function ThresholdsForm({
                           onChange={(e) => {
                             setFormData((prev) => ({
                               ...prev,
-                              [metric.key]: { ...prev[metric.key]!, maxValue: e.target.value },
+                              [metric.key]: {
+                                minValue: prev[metric.key]?.minValue ?? metric.defaultMin,
+                                maxValue: e.target.value,
+                                enabled: prev[metric.key]?.enabled ?? true,
+                              },
                             }));
                           }}
                           className="pr-12 w-36"
@@ -166,7 +178,11 @@ export function ThresholdsForm({
                       onCheckedChange={(checked: boolean) => {
                         setFormData((prev) => ({
                           ...prev,
-                          [metric.key]: { ...prev[metric.key]!, enabled: checked },
+                          [metric.key]: {
+                              minValue: prev[metric.key]?.minValue ?? metric.defaultMin,
+                              maxValue: prev[metric.key]?.maxValue ?? "",
+                              enabled: checked,
+                            },
                         }));
                       }}
                     />

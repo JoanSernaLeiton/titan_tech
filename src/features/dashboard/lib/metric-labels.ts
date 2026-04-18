@@ -54,5 +54,5 @@ export function getMetricUnit(metricKey: string): string {
 export function formatMetricValue(value: number, metricKey: string): string {
   const unit = getMetricUnit(metricKey);
   const formatted = value.toFixed(2);
-  return unit ? `${formatted} ${unit}` : formatted;
+  return unit !== "" ? `${formatted} ${unit}` : formatted;
 }

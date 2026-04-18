@@ -45,7 +45,7 @@ export function evaluateThresholds(
       });
     }
 
-    if (threshold.maxValue !== null && threshold.maxValue !== undefined) {
+    if (threshold.maxValue !== null) {
       const maxThreshold = parseFloat(threshold.maxValue);
       if (!isNaN(maxThreshold) && numericValue > maxThreshold) {
         breaches.push({
