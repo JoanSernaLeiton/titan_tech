@@ -8,7 +8,7 @@ import { getActiveAlertByDeviceAndMetric } from "@/features/dashboard/queries/al
 import { getAgreementVariablesByCustomerId } from "@/features/dashboard/queries/customer-agreement-variables.queries";
 import { getAllEnabledDevicesWithProvider } from "@/features/dashboard/queries/customer-devices.queries";
 import { getThresholdsByCustomerId } from "@/features/dashboard/queries/customer-thresholds.queries";
-import { db } from "@/shared/db";
+import { closeDb, db } from "@/shared/db";
 import { alerts } from "@/shared/db/alerts.schema";
 import { deviceMetricSnapshots } from "@/shared/db/device-metric-snapshots.schema";
 
@@ -70,6 +70,10 @@ export async function GET(request: NextRequest) {
               typeof metrics.active_power_kw === "number"
                 ? String(metrics.active_power_kw)
                 : null,
+            performanceRatioPct:
+              typeof metrics.performance_ratio_pct === "number" && metrics.performance_ratio_pct > 0
+                ? String(metrics.performance_ratio_pct)
+                : null,
             isOnline: metrics.device_online === true,
             snapshotAt: new Date(),
           });
@@ -118,5 +122,7 @@ export async function GET(request: NextRequest) {
       },
       { status: 500 }
     );
+  } finally {
+    await closeDb();
   }
 }

@@ -14,6 +14,7 @@ export interface DeviceMetricRow {
   energyTodayKwh: string | null;
   energyMonthKwh: string | null;
   activePowerKw: string | null;
+  performanceRatioPct: string | null;
   isOnline: boolean;
   snapshotAt: Date;
 }
@@ -63,6 +64,7 @@ export async function getCustomerMetricsRaw(
       energyTodayKwh: deviceMetricSnapshots.energyTodayKwh,
       energyMonthKwh: deviceMetricSnapshots.energyMonthKwh,
       activePowerKw: deviceMetricSnapshots.activePowerKw,
+      performanceRatioPct: deviceMetricSnapshots.performanceRatioPct,
       isOnline: deviceMetricSnapshots.isOnline,
       snapshotAt: deviceMetricSnapshots.snapshotAt,
     })

@@ -15,6 +15,7 @@ export const deviceMetricSnapshots = pgTable("device_metric_snapshots", {
   energyTodayKwh: numeric("energy_today_kwh"),
   energyMonthKwh: numeric("energy_month_kwh"),
   activePowerKw: numeric("active_power_kw"),
+  performanceRatioPct: numeric("performance_ratio_pct"),
   isOnline: boolean("is_online").notNull().default(false),
   snapshotAt: timestamp("snapshot_at").notNull().defaultNow(),
 });

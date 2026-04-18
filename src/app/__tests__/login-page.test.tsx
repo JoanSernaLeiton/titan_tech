@@ -8,12 +8,12 @@ vi.mock("@/features/auth/components/login-form", () => ({
 }));
 
 describe("LoginPage", () => {
-  it("renders the welcome heading in Spanish", () => {
+  it("renders the brand heading", () => {
     // Arrange + Act
     render(<LoginPage />);
 
     // Assert
-    expect(screen.getByText(/bienvenido de nuevo/i)).toBeInTheDocument();
+    expect(screen.getByText(/techos rentables/i)).toBeInTheDocument();
   });
 
   it("renders the LoginForm component", () => {
@@ -24,10 +24,11 @@ describe("LoginPage", () => {
     expect(screen.getByTestId("login-form")).toBeInTheDocument();
   });
 
-  it("renders the sign-in description in Spanish", () => {
+  it("renders the brand subtitle", () => {
     // Arrange + Act
     render(<LoginPage />);
 
     // Assert
-  expect(screen.getByText(/inicia sesion para acceder a una experiencia simple/i)).toBeInTheDocument();  });
+    expect(screen.getByText(/energía solar/i)).toBeInTheDocument();
+  });
 });

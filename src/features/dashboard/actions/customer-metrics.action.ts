@@ -5,7 +5,7 @@ import { getCustomerMetricsRaw } from "@/features/dashboard/queries/customer-met
 import { getUser } from "@/shared/lib/supabase/get-user";
 
 const DEFAULT_TARIFF_COP_PER_KWH = 800;
-const DEFAULT_CO2_KG_PER_KWH = 0.126;
+const DEFAULT_CO2_KG_PER_KWH = 0.16438; // Colombia SIN 2026: 164.38 gCO₂eq/kWh
 
 export interface CustomerMetricsSummary {
   totalDevices: number;
@@ -17,6 +17,7 @@ export interface CustomerMetricsSummary {
   moneySaved: number;
   moneyUnit: string;
   performanceRatioPct: number | null;
+  performanceRatioFromApi: boolean;
   co2ReductionKg: number;
   activePowerKw: number;
   latestSnapshotAt: Date | null;
@@ -60,10 +61,21 @@ export async function getCustomerMetricsSummaryAction(
   const availabilityPct =
     raw.totalDevices > 0 ? (raw.onlineDevices / raw.totalDevices) * 100 : 0;
 
-  const performanceRatioPct =
+  // Prefer API-sourced specific yield (kWh/kWp) stored from provider polling.
+  const storedPrRows = raw.rows.filter((r) => r.performanceRatioPct != null);
+  const storedPr =
+    storedPrRows.length > 0
+      ? storedPrRows.reduce((sum, r) => sum + parseFloat(r.performanceRatioPct ?? "0"), 0) /
+        storedPrRows.length
+      : null;
+
+  const calculatedPr =
     dailyEnergyTarget != null && dailyEnergyTarget > 0
       ? (raw.energyTodayKwhSum / dailyEnergyTarget) * 100
       : null;
+
+  const performanceRatioPct = storedPr ?? calculatedPr;
+  const performanceRatioFromApi = storedPr != null;
 
   return {
     totalDevices: raw.totalDevices,
@@ -75,6 +87,7 @@ export async function getCustomerMetricsSummaryAction(
     moneySaved: raw.energyTodayKwhSum * tariffRate,
     moneyUnit,
     performanceRatioPct,
+    performanceRatioFromApi,
     co2ReductionKg: raw.energyTodayKwhSum * co2Factor,
     activePowerKw: raw.activePowerKwSum,
     latestSnapshotAt: raw.latestSnapshotAt,

@@ -20,7 +20,7 @@ export interface GlobalMetricsRaw {
   latestSnapshotAt: Date | null;
 }
 
-const DEFAULT_CO2_KG_PER_KWH = 0.126;
+const DEFAULT_CO2_KG_PER_KWH = 0.16438; // Colombia SIN 2026: 164.38 gCO₂eq/kWh
 
 export async function getGlobalMetricsRaw(): Promise<GlobalMetricsRaw> {
   // Subquery: latest snapshot_at per device (history table — one row per cron poll)

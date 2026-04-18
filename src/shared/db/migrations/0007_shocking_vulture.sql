@@ -1,0 +1,1 @@
+ALTER TABLE "device_metric_snapshots" ADD COLUMN "performance_ratio_pct" numeric;

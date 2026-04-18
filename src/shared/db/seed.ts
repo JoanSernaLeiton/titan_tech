@@ -54,49 +54,59 @@ const growattMappings: ProviderMetricMappings = {
 };
 
 // Huawei FusionSolar metric mappings
+// Real-time (getDevRealKpi): uses devIds (numeric device ID) + devTypeId as number.
+// Monthly energy and PR come from KPI history endpoints that require a collectTime (ms).
 const huaweiMappings: ProviderMetricMappings = {
   energy_today_kwh: {
     method: "POST",
     path: "/thirdData/getDevRealKpi",
-    body: { devSn: "{{external_id}}", devTypeId: "1" },
+    body: { devIds: "{{external_id}}", devTypeId: 1 },
     response_path: "data[0].dataItemMap.day_cap",
   },
   active_power_kw: {
     method: "POST",
     path: "/thirdData/getDevRealKpi",
-    body: { devSn: "{{external_id}}", devTypeId: "1" },
+    body: { devIds: "{{external_id}}", devTypeId: 1 },
     response_path: "data[0].dataItemMap.active_power",
   },
   temperature_c: {
     method: "POST",
     path: "/thirdData/getDevRealKpi",
-    body: { devSn: "{{external_id}}", devTypeId: "1" },
+    body: { devIds: "{{external_id}}", devTypeId: 1 },
     response_path: "data[0].dataItemMap.temperature",
   },
   ac_frequency_hz: {
     method: "POST",
     path: "/thirdData/getDevRealKpi",
-    body: { devSn: "{{external_id}}", devTypeId: "1" },
+    body: { devIds: "{{external_id}}", devTypeId: 1 },
     response_path: "data[0].dataItemMap.elec_freq",
   },
   ac_voltage_v: {
     method: "POST",
     path: "/thirdData/getDevRealKpi",
-    body: { devSn: "{{external_id}}", devTypeId: "1" },
+    body: { devIds: "{{external_id}}", devTypeId: 1 },
     response_path: "data[0].dataItemMap.a_u",
   },
+  // Monthly energy: getDevKpiMonth returns monthly buckets; last entry = current month.
   energy_month_kwh: {
     method: "POST",
-    path: "/thirdData/getDevRealKpi",
-    body: { devSn: "{{external_id}}", devTypeId: "1" },
-    response_path: "data[0].dataItemMap.month_cap",
+    path: "/thirdData/getDevKpiMonth",
+    body: { devIds: "{{external_id}}", devTypeId: 1, collectTime: "{{today_ms}}" },
+    response_path: "data[-1].dataItemMap.product_power",
   },
   device_online: {
     method: "POST",
     path: "/thirdData/getDevRealKpi",
-    body: { devSn: "{{external_id}}", devTypeId: "1" },
+    body: { devIds: "{{external_id}}", devTypeId: 1 },
     response_path: "data[0].dataItemMap.run_state",
     transform: "status_to_bool_huawei",
+  },
+  // Specific yield (kWh/kWp) from daily KPI buckets; last entry = today.
+  performance_ratio_pct: {
+    method: "POST",
+    path: "/thirdData/getDevKpiDay",
+    body: { devIds: "{{external_id}}", devTypeId: 1, collectTime: "{{today_ms}}" },
+    response_path: "data[-1].dataItemMap.perpower_ratio",
   },
 };
 

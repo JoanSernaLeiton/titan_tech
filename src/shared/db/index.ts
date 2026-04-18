@@ -26,6 +26,7 @@ const schema = {
 type DB = PostgresJsDatabase<typeof schema>;
 
 let _db: DB | null = null;
+let _client: ReturnType<typeof postgres> | null = null;
 
 function getDb(): DB {
   if (_db != null) return _db;
@@ -33,15 +34,23 @@ function getDb(): DB {
   if (url == null || url === "") throw new Error("DATABASE_URL is not set");
   // prepare:false required for Supabase transaction-mode pooler (port 6543).
   // max_lifetime recycles connections before Supabase's 5-min idle timeout kills them.
-  const client = postgres(url, {
+  _client = postgres(url, {
     max: 3,
     idle_timeout: 20,
     connect_timeout: 10,
     max_lifetime: 1800,
     prepare: false,
   });
-  _db = drizzle(client, { schema });
+  _db = drizzle(_client, { schema });
   return _db;
+}
+
+export async function closeDb(): Promise<void> {
+  if (_client != null) {
+    await _client.end({ timeout: 5 });
+    _client = null;
+    _db = null;
+  }
 }
 
 export const db = new Proxy({} as DB, {

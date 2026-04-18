@@ -50,6 +50,13 @@
       "when": 1776526541040,
       "tag": "0006_mysterious_abomination",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1776529794149,
+      "tag": "0007_shocking_vulture",
+      "breakpoints": true
     }
   ]
 }

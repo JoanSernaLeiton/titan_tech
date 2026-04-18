@@ -52,7 +52,7 @@ describe("LoginForm", () => {
     await user.click(screen.getByRole("button", { name: /iniciar sesión/i }));
 
     // Assert
-    expect(await screen.findByText(/correo electrónico inválido/i)).toBeInTheDocument();
+    expect(await screen.findByText(/correo inválido/i)).toBeInTheDocument();
   });
 
   it("shows validation error for short password", async () => {
@@ -66,7 +66,7 @@ describe("LoginForm", () => {
     await user.click(screen.getByRole("button", { name: /iniciar sesión/i }));
 
     // Assert
-    expect(await screen.findByText(/al menos 8 caracteres/i)).toBeInTheDocument();
+    expect(await screen.findByText(/mínimo 8 caracteres/i)).toBeInTheDocument();
   });
 
   it("submits with valid credentials and calls loginAction", async () => {

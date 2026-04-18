@@ -15,7 +15,9 @@ export interface MetricMapping {
 
 function substituteTemplate(template: unknown, externalId: string): unknown {
   if (typeof template === "string") {
-    return template.replace(/\{\{external_id\}\}/g, externalId);
+    return template
+      .replace(/\{\{external_id\}\}/g, externalId)
+      .replace(/\{\{today_ms\}\}/g, Date.now().toString());
   }
   if (typeof template === "object" && template !== null) {
     if (Array.isArray(template)) {
@@ -35,7 +37,7 @@ function extractByPath(obj: unknown, path: string): unknown {
   let current: unknown = obj;
 
   for (const part of parts) {
-    const arrayMatch = /^(\w+)\[(\d+)\]$/.exec(part);
+    const arrayMatch = /^(\w+)\[(-?\d+)\]$/.exec(part);
 
     if (arrayMatch != null && arrayMatch.length >= 3) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -45,7 +47,8 @@ function extractByPath(obj: unknown, path: string): unknown {
       if (typeof current === "object" && current !== null && key in current) {
         const arr = (current as Record<string, unknown>)[key];
         if (Array.isArray(arr)) {
-          current = arr[parseInt(index)];
+          const idx = parseInt(index);
+          current = arr[idx < 0 ? arr.length + idx : idx];
         } else {
           return undefined;
         }

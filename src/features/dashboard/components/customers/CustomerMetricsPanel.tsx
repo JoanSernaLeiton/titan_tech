@@ -251,24 +251,32 @@ export function CustomerMetricsPanel({
             isLoading
               ? null
               : data?.performanceRatioPct != null
-                ? `${fmt(data.performanceRatioPct)}%`
+                ? data.performanceRatioFromApi
+                  ? `${fmt(data.performanceRatioPct)} kWh/kWp`
+                  : `${fmt(data.performanceRatioPct)}%`
                 : "—"
           }
           sub={
             <span className="text-white/40 text-xs">
               {data?.performanceRatioPct == null && !isLoading
                 ? "Configure meta mensual"
-                : "vs. meta diaria"}
+                : data?.performanceRatioFromApi === true
+                  ? "Rendimiento específico (API)"
+                  : "vs. meta diaria"}
             </span>
           }
           accent="text-blue-300"
           explanation={
-            <>
-              Qué tan cerca estuvo la producción real de la meta diaria.
-              <br />
-              <br />
-              <strong>Fórmula:</strong> (kWh generados hoy ÷ meta diaria configurada) × 100. Requiere configurar la meta mensual en el acuerdo del cliente.
-            </>
+            data?.performanceRatioFromApi === true
+              ? "Productividad específica del inversor obtenida directamente de la API del proveedor: kWh generados por kWp de capacidad instalada."
+              : (
+                <>
+                  Qué tan cerca estuvo la producción real de la meta diaria.
+                  <br />
+                  <br />
+                  <strong>Fórmula:</strong> (kWh generados hoy ÷ meta diaria configurada) × 100. Requiere configurar la meta mensual en el acuerdo del cliente.
+                </>
+              )
           }
         />
 
@@ -278,7 +286,7 @@ export function CustomerMetricsPanel({
           value={isLoading ? null : `${fmt(data?.co2ReductionKg ?? 0)} kg`}
           sub={<span className="text-white/40 text-xs">Hoy</span>}
           accent="text-teal-300"
-          explanation="Kilogramos de CO₂ evitados hoy gracias a la generación solar. Fórmula: kWh generados hoy × factor de emisión (~0.126 kg CO₂/kWh) de la red eléctrica colombiana."
+          explanation="Kilogramos de CO₂ evitados hoy gracias a la generación solar. Fórmula: kWh generados hoy × 0.16438 kg CO₂/kWh (factor de emisión SIN Colombia 2026)."
         />
       </div>
 
