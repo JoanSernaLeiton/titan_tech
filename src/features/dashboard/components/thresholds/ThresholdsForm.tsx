@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { useThresholds, useUpsertThreshold } from "@/features/dashboard/hooks/use-thresholds";
+import { DEFAULT_METRICS } from "@/features/dashboard/lib/metric-labels";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Switch } from "@/shared/components/ui/switch";
@@ -17,41 +18,6 @@ import {
 import type { InsertCustomerThreshold, SelectCustomerThreshold } from "@/shared/db/customer-thresholds.schema";
 
 const EMPTY_THRESHOLDS: SelectCustomerThreshold[] = [];
-
-const DEFAULT_METRICS = [
-  {
-    key: "energy_today_kwh",
-    label: "Energía de Hoy",
-    description: "Alerta si la energía generada en el día es menor al mínimo",
-    defaultMin: "1",
-    unit: "kWh",
-    type: "number" as const,
-  },
-  {
-    key: "ac_frequency_hz",
-    label: "Frecuencia CA",
-    description: "Alerta si la frecuencia de la red eléctrica cae por debajo del mínimo",
-    defaultMin: "54",
-    unit: "Hz",
-    type: "number" as const,
-  },
-  {
-    key: "ac_voltage_v",
-    label: "Voltaje CA",
-    description: "Alerta si el voltaje de salida cae por debajo del mínimo",
-    defaultMin: "108",
-    unit: "V",
-    type: "number" as const,
-  },
-  {
-    key: "device_online",
-    label: "Dispositivo en Línea",
-    description: "Alerta si el dispositivo pierde conectividad",
-    defaultMin: "1",
-    unit: "",
-    type: "boolean" as const,
-  },
-];
 
 interface ThresholdsFormProps {
   customerId?: string;
