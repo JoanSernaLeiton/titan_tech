@@ -13,6 +13,7 @@ interface MetricMapping {
   body?: Record<string, unknown>;
   response_path?: string;
   key_aliases?: string[];
+  dataList_path?: string;
   transform?: string;
 }
 
@@ -104,43 +105,49 @@ const huaweiMappings: ProviderMetricMappings = {
   },
 };
 
-// DeyeCloud metric mappings
+// DeyeCloud metric mappings — body must use deviceList (array), not deviceSn.
+// Metrics live in deviceDataList[0].dataList as [{key, value, unit}] pairs.
 const deyeMappings: ProviderMetricMappings = {
   energy_today_kwh: {
     method: "POST",
     path: "/v1.0/device/latest",
-    body: { deviceSn: "{{external_id}}" },
-    key_aliases: ["Today's Production", "Daily Energy", "Today Energy", "Daily Production"],
+    body: { deviceList: ["{{external_id}}"] },
+    dataList_path: "deviceDataList[0].dataList",
+    key_aliases: ["DailyActiveProduction", "Today's Production", "Daily Energy", "Today Energy", "Daily Production"],
   },
   active_power_kw: {
     method: "POST",
     path: "/v1.0/device/latest",
-    body: { deviceSn: "{{external_id}}" },
-    key_aliases: ["AC Power", "Total AC Power", "Active Power"],
+    body: { deviceList: ["{{external_id}}"] },
+    dataList_path: "deviceDataList[0].dataList",
+    key_aliases: ["AC Power", "Total AC Power", "Active Power", "DCPowerPV1"],
   },
   temperature_c: {
     method: "POST",
     path: "/v1.0/device/latest",
-    body: { deviceSn: "{{external_id}}" },
-    key_aliases: ["Temperature", "DC Temperature", "AC Temperature"],
+    body: { deviceList: ["{{external_id}}"] },
+    dataList_path: "deviceDataList[0].dataList",
+    key_aliases: ["DC Temperature", "AC Temperature", "Temperature- Battery", "Temperature"],
   },
   ac_frequency_hz: {
     method: "POST",
     path: "/v1.0/device/latest",
-    body: { deviceSn: "{{external_id}}" },
-    key_aliases: ["AC Frequency", "Grid Frequency", "Frequency"],
+    body: { deviceList: ["{{external_id}}"] },
+    dataList_path: "deviceDataList[0].dataList",
+    key_aliases: ["GridFrequency", "ACOutputFrequencyR", "Grid Frequency", "Frequency"],
   },
   ac_voltage_v: {
     method: "POST",
     path: "/v1.0/device/latest",
-    body: { deviceSn: "{{external_id}}" },
-    key_aliases: ["AC Voltage L1", "MI Voltage L1", "Voltage L1"],
+    body: { deviceList: ["{{external_id}}"] },
+    dataList_path: "deviceDataList[0].dataList",
+    key_aliases: ["ACVoltageRUA", "AC Voltage L1", "MI Voltage L1", "Voltage L1"],
   },
   device_online: {
     method: "POST",
     path: "/v1.0/device/latest",
-    body: { deviceSn: "{{external_id}}" },
-    response_path: "deviceState",
+    body: { deviceList: ["{{external_id}}"] },
+    response_path: "deviceDataList[0].deviceState",
     transform: "status_to_bool_deye",
   },
 };

@@ -11,8 +11,13 @@ import { db } from "@/shared/db";
 import { alerts } from "@/shared/db/alerts.schema";
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET ?? ""}`) {
+  const cronSecret = process.env.CRON_SECRET;
+  if (cronSecret == null || cronSecret === "") {
+    // eslint-disable-next-line no-console
+    console.error("CRON_SECRET env var is not set — set it in Vercel project settings");
+    return NextResponse.json({ error: "Service misconfigured" }, { status: 503 });
+  }
+  if (request.headers.get("authorization") !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

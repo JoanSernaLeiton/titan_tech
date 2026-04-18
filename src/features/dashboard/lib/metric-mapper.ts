@@ -7,6 +7,9 @@ export interface MetricMapping {
   body?: Record<string, unknown>;
   response_path?: string;
   key_aliases?: string[];
+  // Navigate to an array at this path, then search for {key, value} pairs where key ∈ key_aliases.
+  // Used for Deye's deviceDataList[0].dataList structure.
+  dataList_path?: string;
   transform?: "divide_1000" | "status_to_bool_growatt" | "status_to_bool_huawei" | "status_to_bool_deye";
 }
 
@@ -76,6 +79,24 @@ function extractByAliases(obj: unknown, aliases: string[]): unknown {
   return undefined;
 }
 
+function extractFromDataList(response: unknown, dataListPath: string, aliases: string[]): unknown {
+  const list = extractByPath(response, dataListPath);
+  if (!Array.isArray(list)) return undefined;
+
+  const aliasSet = new Set(aliases);
+  for (const item of list) {
+    if (typeof item === "object" && item !== null && "key" in item && "value" in item) {
+      const entry = item as { key: unknown; value: unknown };
+      if (typeof entry.key === "string" && aliasSet.has(entry.key)) {
+        const num = parseFloat(entry.value as string);
+        return isNaN(num) ? entry.value : num;
+      }
+    }
+  }
+
+  return undefined;
+}
+
 function applyTransform(value: unknown, transform: string): unknown {
   if (transform === "divide_1000") {
     if (typeof value === "number") {
@@ -136,7 +157,9 @@ export async function fetchMetricForDevice(
 
     let value: unknown = response;
 
-    if (mapping.response_path != null) {
+    if (mapping.dataList_path != null && mapping.key_aliases != null) {
+      value = extractFromDataList(response, mapping.dataList_path, mapping.key_aliases);
+    } else if (mapping.response_path != null) {
       value = extractByPath(response, mapping.response_path);
     } else if (mapping.key_aliases != null) {
       value = extractByAliases(response, mapping.key_aliases);

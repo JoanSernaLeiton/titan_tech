@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -25,12 +26,32 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import type { SelectCustomerDevice } from "@/shared/db/customer-devices.schema";
 import type { SelectProvider } from "@/shared/db/providers.schema";
 
+const PROVIDER_TEMPLATES: Record<string, string> = {
+  growatt: JSON.stringify({}, null, 2),
+  huawei: JSON.stringify({}, null, 2),
+  deye: JSON.stringify({}, null, 2),
+};
+
+const PROVIDER_EXTERNAL_ID_HINTS: Record<string, { label: string; placeholder: string }> = {
+  growatt: {
+    label: "Serial del Dispositivo Growatt (device_sn)",
+    placeholder: "ej. QMN000BN2EF",
+  },
+  huawei: {
+    label: "Serial del Dispositivo Huawei (devSn)",
+    placeholder: "ej. NE0000000001",
+  },
+  deye: {
+    label: "Serial del Dispositivo DeyeCloud (deviceSn)",
+    placeholder: "ej. 2311230001",
+  },
+};
+
 const deviceFormSchema = z.object({
   deviceName: z.string().min(1, "El nombre del dispositivo es obligatorio"),
   providerId: z.string().min(1, "El proveedor es obligatorio"),
   deviceType: z.enum(["inverter", "micro_inverter"]),
   externalId: z.string().min(1, "El ID externo es obligatorio"),
-  displayLabel: z.string().optional(),
   apiParams: z.string().optional(),
 });
 
@@ -57,7 +78,6 @@ export function DeviceForm({
           providerId: device.providerId,
           deviceType: device.deviceType,
           externalId: device.externalId,
-          displayLabel: device.deviceName,
           apiParams: JSON.stringify(device.apiParams, null, 2),
         }
       : {
@@ -65,10 +85,24 @@ export function DeviceForm({
           providerId: "",
           deviceType: "inverter",
           externalId: "",
-          displayLabel: "",
           apiParams: "{}",
         },
   });
+
+  const selectedProviderId = form.watch("providerId");
+  const selectedProvider = providers.find((p) => p.id === selectedProviderId);
+  const externalIdHint = selectedProvider != null ? PROVIDER_EXTERNAL_ID_HINTS[selectedProvider.slug] : null;
+
+  useEffect(() => {
+    if (device != null || selectedProviderId === "") return;
+    const provider = providers.find((p) => p.id === selectedProviderId);
+    if (provider == null) return;
+    const template = PROVIDER_TEMPLATES[provider.slug];
+    if (template != null) {
+      form.setValue("apiParams", template);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedProviderId]);
 
   const handleSubmit = (data: DeviceFormData) => {
     onSubmit({
@@ -150,24 +184,14 @@ export function DeviceForm({
           name="externalId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>ID Externo (Número de Serie / ID de Planta)</FormLabel>
+              <FormLabel>
+                {externalIdHint != null ? externalIdHint.label : "Serial del Dispositivo"}
+              </FormLabel>
               <FormControl>
-                <Input placeholder="ej. SN123456" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
-          control={form.control as any}
-          name="displayLabel"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Etiqueta de Visualización (Opcional)</FormLabel>
-              <FormControl>
-                <Input placeholder="Nombre personalizado" {...field} />
+                <Input
+                  placeholder={externalIdHint != null ? externalIdHint.placeholder : "ej. SN123456"}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
