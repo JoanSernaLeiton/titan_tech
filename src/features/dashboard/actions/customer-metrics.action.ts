@@ -13,6 +13,7 @@ export interface CustomerMetricsSummary {
   snapshotCount: number;
   availabilityPct: number;
   energySavedKwh: number;
+  energyMonthKwh: number;
   moneySaved: number;
   moneyUnit: string;
   performanceRatioPct: number | null;
@@ -70,6 +71,7 @@ export async function getCustomerMetricsSummaryAction(
     snapshotCount: raw.rows.length,
     availabilityPct,
     energySavedKwh: raw.energyTodayKwhSum,
+    energyMonthKwh: raw.energyMonthKwhSum,
     moneySaved: raw.energyTodayKwhSum * tariffRate,
     moneyUnit,
     performanceRatioPct,

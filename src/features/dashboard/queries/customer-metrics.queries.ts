@@ -12,6 +12,7 @@ export interface DeviceMetricRow {
   deviceType: "inverter" | "micro_inverter";
   providerSlug: string;
   energyTodayKwh: string | null;
+  energyMonthKwh: string | null;
   activePowerKw: string | null;
   isOnline: boolean;
   snapshotAt: Date;
@@ -21,6 +22,7 @@ export interface CustomerMetricsRaw {
   totalDevices: number;
   onlineDevices: number;
   energyTodayKwhSum: number;
+  energyMonthKwhSum: number;
   activePowerKwSum: number;
   latestSnapshotAt: Date | null;
   rows: DeviceMetricRow[];
@@ -48,6 +50,7 @@ export async function getCustomerMetricsRaw(
       deviceType: customerDevices.deviceType,
       providerSlug: providers.slug,
       energyTodayKwh: deviceMetricSnapshots.energyTodayKwh,
+      energyMonthKwh: deviceMetricSnapshots.energyMonthKwh,
       activePowerKw: deviceMetricSnapshots.activePowerKw,
       isOnline: deviceMetricSnapshots.isOnline,
       snapshotAt: deviceMetricSnapshots.snapshotAt,
@@ -74,6 +77,7 @@ export async function getCustomerMetricsRaw(
   const totalDevices = countRow?.total ?? 0;
   const onlineDevices = rows.filter((r) => r.isOnline).length;
   const energyTodayKwhSum = rows.reduce((acc, r) => acc + (r.energyTodayKwh != null ? parseFloat(r.energyTodayKwh) : 0), 0);
+  const energyMonthKwhSum = rows.reduce((acc, r) => acc + (r.energyMonthKwh != null ? parseFloat(r.energyMonthKwh) : 0), 0);
   const activePowerKwSum = rows.reduce((acc, r) => acc + (r.activePowerKw != null ? parseFloat(r.activePowerKw) : 0), 0);
   const latestSnapshotAt = rows.reduce<Date | null>((latest, r) => {
     if (latest == null) return r.snapshotAt;
@@ -84,6 +88,7 @@ export async function getCustomerMetricsRaw(
     totalDevices,
     onlineDevices,
     energyTodayKwhSum,
+    energyMonthKwhSum,
     activePowerKwSum,
     latestSnapshotAt,
     rows: rows as DeviceMetricRow[],

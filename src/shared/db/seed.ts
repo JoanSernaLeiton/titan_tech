@@ -55,6 +55,12 @@ const growattMappings: ProviderMetricMappings = {
     query_params: { device_sn: "{{external_id}}" },
     response_path: "data.vacr",
   },
+  energy_month_kwh: {
+    method: "GET",
+    path: "/v1/device/inverter/last_new_data",
+    query_params: { device_sn: "{{external_id}}" },
+    response_path: "data.epvmonth",
+  },
   device_online: {
     method: "GET",
     path: "/v1/device/inverter/last_new_data",
@@ -95,6 +101,12 @@ const huaweiMappings: ProviderMetricMappings = {
     path: "/thirdData/getDevRealKpi",
     body: { devSn: "{{external_id}}", devTypeId: "1" },
     response_path: "data[0].dataItemMap.a_u",
+  },
+  energy_month_kwh: {
+    method: "POST",
+    path: "/thirdData/getDevRealKpi",
+    body: { devSn: "{{external_id}}", devTypeId: "1" },
+    response_path: "data[0].dataItemMap.month_cap",
   },
   device_online: {
     method: "POST",
@@ -143,6 +155,13 @@ const deyeMappings: ProviderMetricMappings = {
     body: { deviceList: ["{{external_id}}"] },
     dataList_path: "deviceDataList[0].dataList",
     key_aliases: ["ACVoltageRUA", "AC Voltage L1", "MI Voltage L1", "Voltage L1"],
+  },
+  energy_month_kwh: {
+    method: "POST",
+    path: "/v1.0/device/latest",
+    body: { deviceList: ["{{external_id}}"] },
+    dataList_path: "deviceDataList[0].dataList",
+    key_aliases: ["MonthlyActiveProduction", "Monthly Production", "Monthly Energy", "Month Energy"],
   },
   device_online: {
     method: "POST",

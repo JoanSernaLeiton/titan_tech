@@ -82,7 +82,13 @@ export function GlobalMetricsPanel() {
       </div>
 
       {/* Stat grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 divide-y sm:divide-y-0 divide-white/10">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 divide-y sm:divide-y-0 divide-white/10">
+        <StatTile
+          icon="🗓️"
+          label="Energía este mes"
+          value={isLoading ? null : `${fmt(data?.energyMonthKwh ?? 0)} kWh`}
+          accent="text-orange-300"
+        />
         <StatTile
           icon="⚡"
           label="Energía hoy"

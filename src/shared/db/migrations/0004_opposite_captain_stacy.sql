@@ -1,0 +1,1 @@
+ALTER TABLE "device_metric_snapshots" ADD COLUMN "energy_month_kwh" numeric;

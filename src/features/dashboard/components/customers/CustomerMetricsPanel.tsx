@@ -121,7 +121,14 @@ export function CustomerMetricsPanel({
         </p>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <MetricCard
+          title="Energía este mes"
+          value={isLoading ? null : `${fmt(data?.energyMonthKwh ?? 0)} kWh`}
+          subtitle="Acumulado mensual"
+          icon="🗓️"
+        />
+
         <MetricCard
           title="Energía ahorrada"
           value={isLoading ? null : `${fmt(data?.energySavedKwh ?? 0)} kWh`}

@@ -10,6 +10,7 @@ export interface GlobalMetricsSummary {
   snapshotCount: number;
   availabilityPct: number;
   energyTodayKwh: number;
+  energyMonthKwh: number;
   activePowerKw: number;
   co2ReductionKg: number;
   latestSnapshotAt: Date | null;
@@ -31,6 +32,7 @@ export async function getGlobalMetricsSummaryAction(): Promise<GlobalMetricsSumm
     snapshotCount: raw.snapshotCount,
     availabilityPct,
     energyTodayKwh: raw.energyTodayKwhSum,
+    energyMonthKwh: raw.energyMonthKwhSum,
     activePowerKw: raw.activePowerKwSum,
     co2ReductionKg: raw.co2ReductionKg,
     latestSnapshotAt: raw.latestSnapshotAt,

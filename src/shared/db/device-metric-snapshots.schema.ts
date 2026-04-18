@@ -14,6 +14,7 @@ export const deviceMetricSnapshots = pgTable("device_metric_snapshots", {
     .notNull()
     .references(() => customers.id, { onDelete: "cascade" }),
   energyTodayKwh: numeric("energy_today_kwh"),
+  energyMonthKwh: numeric("energy_month_kwh"),
   activePowerKw: numeric("active_power_kw"),
   isOnline: boolean("is_online").notNull().default(false),
   snapshotAt: timestamp("snapshot_at").notNull().defaultNow(),

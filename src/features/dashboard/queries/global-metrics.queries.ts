@@ -14,6 +14,7 @@ export interface GlobalMetricsRaw {
   onlineDevices: number;
   snapshotCount: number;
   energyTodayKwhSum: number;
+  energyMonthKwhSum: number;
   activePowerKwSum: number;
   co2ReductionKg: number;
   latestSnapshotAt: Date | null;
@@ -26,6 +27,7 @@ export async function getGlobalMetricsRaw(): Promise<GlobalMetricsRaw> {
     db
       .select({
         energyTodayKwh: deviceMetricSnapshots.energyTodayKwh,
+        energyMonthKwh: deviceMetricSnapshots.energyMonthKwh,
         activePowerKw: deviceMetricSnapshots.activePowerKw,
         isOnline: deviceMetricSnapshots.isOnline,
         snapshotAt: deviceMetricSnapshots.snapshotAt,
@@ -52,6 +54,10 @@ export async function getGlobalMetricsRaw(): Promise<GlobalMetricsRaw> {
     (acc, r) => acc + (r.energyTodayKwh != null ? parseFloat(r.energyTodayKwh) : 0),
     0
   );
+  const energyMonthKwhSum = snapshotRows.reduce(
+    (acc, r) => acc + (r.energyMonthKwh != null ? parseFloat(r.energyMonthKwh) : 0),
+    0
+  );
   const activePowerKwSum = snapshotRows.reduce(
     (acc, r) => acc + (r.activePowerKw != null ? parseFloat(r.activePowerKw) : 0),
     0
@@ -67,6 +73,7 @@ export async function getGlobalMetricsRaw(): Promise<GlobalMetricsRaw> {
     onlineDevices,
     snapshotCount: snapshotRows.length,
     energyTodayKwhSum,
+    energyMonthKwhSum,
     activePowerKwSum,
     co2ReductionKg: energyTodayKwhSum * DEFAULT_CO2_KG_PER_KWH,
     latestSnapshotAt,

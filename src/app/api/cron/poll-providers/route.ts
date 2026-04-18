@@ -59,6 +59,8 @@ export async function GET(request: NextRequest) {
               customerId: device.customerId,
               energyTodayKwh:
                 metrics.energy_today_kwh != null ? String(metrics.energy_today_kwh) : null,
+              energyMonthKwh:
+                metrics.energy_month_kwh != null ? String(metrics.energy_month_kwh) : null,
               activePowerKw:
                 metrics.active_power_kw != null ? String(metrics.active_power_kw) : null,
               isOnline: metrics.device_online === true,
@@ -69,6 +71,8 @@ export async function GET(request: NextRequest) {
               set: {
                 energyTodayKwh:
                   metrics.energy_today_kwh != null ? String(metrics.energy_today_kwh) : null,
+                energyMonthKwh:
+                  metrics.energy_month_kwh != null ? String(metrics.energy_month_kwh) : null,
                 activePowerKw:
                   metrics.active_power_kw != null ? String(metrics.active_power_kw) : null,
                 isOnline: metrics.device_online === true,
