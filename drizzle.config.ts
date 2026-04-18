@@ -8,6 +8,7 @@ export default defineConfig({
   out: "./src/shared/db/migrations",
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env["DATABASE_URL"] ?? "",
+    // Migrations need the direct connection (not the pooler) to run DDL reliably.
+    url: process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"] ?? "",
   },
 });

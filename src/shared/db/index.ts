@@ -31,7 +31,15 @@ function getDb(): DB {
   if (_db != null) return _db;
   const url = process.env.DATABASE_URL;
   if (url == null || url === "") throw new Error("DATABASE_URL is not set");
-  const client = postgres(url);
+  // prepare:false required for Supabase transaction-mode pooler (port 6543).
+  // max_lifetime recycles connections before Supabase's 5-min idle timeout kills them.
+  const client = postgres(url, {
+    max: 3,
+    idle_timeout: 20,
+    connect_timeout: 10,
+    max_lifetime: 1800,
+    prepare: false,
+  });
   _db = drizzle(client, { schema });
   return _db;
 }

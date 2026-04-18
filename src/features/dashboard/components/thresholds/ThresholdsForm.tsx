@@ -35,13 +35,14 @@ export function ThresholdsForm({
   const thresholds = propThresholds.length > 0 ? propThresholds : hookThresholds;
 
   const [formData, setFormData] = useState<
-    Record<string, { minValue: string; enabled: boolean }>
+    Record<string, { minValue: string; maxValue: string; enabled: boolean }>
   >(
-    DEFAULT_METRICS.reduce<Record<string, { minValue: string; enabled: boolean }>>(
+    DEFAULT_METRICS.reduce<Record<string, { minValue: string; maxValue: string; enabled: boolean }>>(
       (acc, metric) => {
         const existing = thresholds.find((t) => t.metric === metric.key);
         acc[metric.key] = {
           minValue: existing != null ? existing.minValue : metric.defaultMin,
+          maxValue: existing?.maxValue ?? metric.defaultMax ?? "",
           enabled: existing != null ? existing.isEnabled : true,
         };
         return acc;
@@ -52,11 +53,12 @@ export function ThresholdsForm({
 
   useEffect(() => {
     setFormData(
-      DEFAULT_METRICS.reduce<Record<string, { minValue: string; enabled: boolean }>>(
+      DEFAULT_METRICS.reduce<Record<string, { minValue: string; maxValue: string; enabled: boolean }>>(
         (acc, metric) => {
           const existing = thresholds.find((t) => t.metric === metric.key);
           acc[metric.key] = {
             minValue: existing != null ? existing.minValue : metric.defaultMin,
+            maxValue: existing?.maxValue ?? metric.defaultMax ?? "",
             enabled: existing != null ? existing.isEnabled : true,
           };
           return acc;
@@ -67,12 +69,17 @@ export function ThresholdsForm({
   }, [thresholds]);
 
   const handleSave = () => {
-    const updatedThresholds = DEFAULT_METRICS.map((metric) => ({
-      customerId: customerId ?? "",
-      metric: metric.key,
-      minValue: formData[metric.key]?.minValue ?? metric.defaultMin,
-      isEnabled: formData[metric.key]?.enabled ?? true,
-    }));
+    const updatedThresholds = DEFAULT_METRICS.map((metric) => {
+      const rowData = formData[metric.key];
+      const maxVal = rowData?.maxValue;
+      return {
+        customerId: customerId ?? "",
+        metric: metric.key,
+        minValue: rowData?.minValue ?? metric.defaultMin,
+        maxValue: metric.hasMax ? (maxVal !== "" && maxVal != null ? maxVal : null) : null,
+        isEnabled: rowData?.enabled ?? true,
+      };
+    });
 
     if (customerId != null && propThresholds.length === 0) {
       updatedThresholds.forEach((threshold) => {
@@ -91,12 +98,13 @@ export function ThresholdsForm({
             <TableRow>
               <TableHead>Métrica</TableHead>
               <TableHead>Valor Mínimo</TableHead>
+              <TableHead>Valor Máximo</TableHead>
               <TableHead>Habilitado</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {DEFAULT_METRICS.map((metric) => {
-              const row = formData[metric.key] ?? { minValue: metric.defaultMin, enabled: true };
+              const row = formData[metric.key] ?? { minValue: metric.defaultMin, maxValue: metric.defaultMax ?? "", enabled: true };
               const isDisabled = !row.enabled;
               return (
                 <TableRow key={metric.key} className={isDisabled ? "opacity-50" : ""}>
@@ -122,6 +130,36 @@ export function ThresholdsForm({
                               ...prev,
                               [metric.key]: {
                                 minValue: e.target.value,
+                                maxValue: prev[metric.key]?.maxValue ?? "",
+                                enabled: prev[metric.key]?.enabled ?? true,
+                              },
+                            }));
+                          }}
+                          className="pr-12 w-36"
+                        />
+                        <span className="pointer-events-none absolute right-3 text-xs font-medium text-muted-foreground">
+                          {metric.unit}
+                        </span>
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {metric.type === "boolean" || !metric.hasMax ? (
+                      <span className="text-muted-foreground">—</span>
+                    ) : (
+                      <div className="relative flex items-center w-36">
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="0"
+                          disabled={isDisabled}
+                          value={row.maxValue}
+                          onChange={(e) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              [metric.key]: {
+                                minValue: prev[metric.key]?.minValue ?? metric.defaultMin,
+                                maxValue: e.target.value,
                                 enabled: prev[metric.key]?.enabled ?? true,
                               },
                             }));
@@ -141,9 +179,10 @@ export function ThresholdsForm({
                         setFormData((prev) => ({
                           ...prev,
                           [metric.key]: {
-                            minValue: prev[metric.key]?.minValue ?? metric.defaultMin,
-                            enabled: checked,
-                          },
+                              minValue: prev[metric.key]?.minValue ?? metric.defaultMin,
+                              maxValue: prev[metric.key]?.maxValue ?? "",
+                              enabled: checked,
+                            },
                         }));
                       }}
                     />

@@ -36,6 +36,20 @@
       "when": 1776514965204,
       "tag": "0004_opposite_captain_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1776524098483,
+      "tag": "0005_broken_amphibian",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1776526541040,
+      "tag": "0006_mysterious_abomination",
+      "breakpoints": true
     }
   ]
 }
