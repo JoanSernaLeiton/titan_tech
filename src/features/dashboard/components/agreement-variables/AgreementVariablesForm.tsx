@@ -121,7 +121,7 @@ export function AgreementVariablesForm({
       return {
         customerId: customerId ?? "",
         variable: variable.key as "energia_ahorrada" | "dinero_ahorrado" | "disponibilidad_sistema" | "performance_ratio" | "mitigacion_co2",
-        monthlyTarget: data?.monthlyTarget ?? "0",
+        monthlyTarget: data?.monthlyTarget || "0",
         unit: data?.unit ?? variable.defaultUnit,
         enabled: data?.enabled ?? true,
       };

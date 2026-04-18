@@ -6,6 +6,7 @@ import * as customerAgreementVariables from "./customer-agreement-variables.sche
 import * as customerDevices from "./customer-devices.schema";
 import * as customerThresholds from "./customer-thresholds.schema";
 import * as customers from "./customers.schema";
+import * as deviceMetricSnapshots from "./device-metric-snapshots.schema";
 import * as profiles from "./profiles.schema";
 import * as providers from "./providers.schema";
 import * as reports from "./reports.schema";
@@ -19,6 +20,7 @@ const schema = {
   ...customerThresholds,
   ...alerts,
   ...reports,
+  ...deviceMetricSnapshots,
 };
 
 type DB = PostgresJsDatabase<typeof schema>;

@@ -1,5 +1,5 @@
 {
-  "id": "29bc7020-e3e9-42ed-a302-1105481378dc",
+  "id": "742b1141-8026-445a-aaad-2a3be12f6517",
   "prevId": "6f954297-dde1-46c0-9da4-c73ac7e2626a",
   "version": "7",
   "dialect": "postgresql",
@@ -361,6 +361,99 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.device_metric_snapshots": {
+      "name": "device_metric_snapshots",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "device_id": {
+          "name": "device_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "energy_today_kwh": {
+          "name": "energy_today_kwh",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "active_power_kw": {
+          "name": "active_power_kw",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_online": {
+          "name": "is_online",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "snapshot_at": {
+          "name": "snapshot_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "device_metric_snapshots_device_id_customer_devices_id_fk": {
+          "name": "device_metric_snapshots_device_id_customer_devices_id_fk",
+          "tableFrom": "device_metric_snapshots",
+          "tableTo": "customer_devices",
+          "columnsFrom": [
+            "device_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "device_metric_snapshots_customer_id_customers_id_fk": {
+          "name": "device_metric_snapshots_customer_id_customers_id_fk",
+          "tableFrom": "device_metric_snapshots",
+          "tableTo": "customers",
+          "columnsFrom": [
+            "customer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "device_metric_snapshots_device_id_unique": {
+          "name": "device_metric_snapshots_device_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "device_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.profiles": {
       "name": "profiles",
       "schema": "",
@@ -475,132 +568,6 @@
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
-    },
-    "public.reports": {
-      "name": "reports",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "customer_id": {
-          "name": "customer_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "report_type": {
-          "name": "report_type",
-          "type": "report_type",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "report_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'pending'"
-        },
-        "period_year": {
-          "name": "period_year",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "period_month": {
-          "name": "period_month",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "timezone": {
-          "name": "timezone",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "generated_by_email": {
-          "name": "generated_by_email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "is_async": {
-          "name": "is_async",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "warnings": {
-          "name": "warnings",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'[]'::jsonb"
-        },
-        "metrics": {
-          "name": "metrics",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::jsonb"
-        },
-        "pdf_content": {
-          "name": "pdf_content",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "xlsx_content": {
-          "name": "xlsx_content",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "reports_customer_id_customers_id_fk": {
-          "name": "reports_customer_id_customers_id_fk",
-          "tableFrom": "reports",
-          "tableTo": "customers",
-          "columnsFrom": [
-            "customer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
     }
   },
   "enums": {
@@ -656,24 +623,6 @@
       "values": [
         "inverter",
         "micro_inverter"
-      ]
-    },
-    "public.report_status": {
-      "name": "report_status",
-      "schema": "public",
-      "values": [
-        "pending",
-        "ready",
-        "partial",
-        "failed"
-      ]
-    },
-    "public.report_type": {
-      "name": "report_type",
-      "schema": "public",
-      "values": [
-        "monthly",
-        "commercial_adhoc"
       ]
     }
   },

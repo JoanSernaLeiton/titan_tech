@@ -25,7 +25,7 @@ export async function middlewareRequest(
   }
 
   const headers: Record<string, string> = {
-    Authorization: `tk_${apiKey}`,
+    Authorization: apiKey,
     "Content-Type": "application/json",
   };
 

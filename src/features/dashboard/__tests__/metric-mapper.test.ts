@@ -200,7 +200,18 @@ describe("metric-mapper", () => {
       });
       expect(result).toBe(true);
 
+      // status=0 means Standby (nighttime) — device is reachable, not offline
       vi.mocked(middlewareRequest).mockResolvedValue({ status: 0 });
+      result = await metricMapper.fetchMetricForDevice("growatt", "device1", "test", {
+        path: "/endpoint",
+        method: "GET",
+        response_path: "status",
+        transform: "status_to_bool_growatt",
+      });
+      expect(result).toBe(true);
+
+      // status≥2 means fault/disconnected
+      vi.mocked(middlewareRequest).mockResolvedValue({ status: 3 });
       result = await metricMapper.fetchMetricForDevice("growatt", "device1", "test", {
         path: "/endpoint",
         method: "GET",

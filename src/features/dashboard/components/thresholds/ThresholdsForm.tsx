@@ -16,13 +16,13 @@ import {
 } from "@/shared/components/ui/table";
 import type { InsertCustomerThreshold, SelectCustomerThreshold } from "@/shared/db/customer-thresholds.schema";
 
+const EMPTY_THRESHOLDS: SelectCustomerThreshold[] = [];
+
 const DEFAULT_METRICS = [
-  { key: "energy_today_kwh", label: "Energía de Hoy (kWh)" },
-  { key: "active_power_kw", label: "Potencia Activa (kW)" },
-  { key: "temperature_c", label: "Temperatura (°C)" },
-  { key: "ac_frequency_hz", label: "Frecuencia CA (Hz)" },
-  { key: "ac_voltage_v", label: "Voltaje CA (V)" },
-  { key: "device_online", label: "Dispositivo en Línea" },
+  { key: "energy_today_kwh", label: "Energía de Hoy (kWh)", defaultMin: "1" },
+  { key: "ac_frequency_hz", label: "Frecuencia CA (Hz)", defaultMin: "54" },
+  { key: "ac_voltage_v", label: "Voltaje CA (V)", defaultMin: "108" },
+  { key: "device_online", label: "Dispositivo en Línea", defaultMin: "1" },
 ];
 
 interface ThresholdsFormProps {
@@ -36,7 +36,7 @@ export function ThresholdsForm({
   thresholds: propThresholds = [],
   onSave,
 }: ThresholdsFormProps) {
-  const { data: hookThresholds = [] } = useThresholds(customerId ?? "");
+  const { data: hookThresholds = EMPTY_THRESHOLDS } = useThresholds(customerId ?? "");
   const upsertMutation = useUpsertThreshold();
   const thresholds = propThresholds.length > 0 ? propThresholds : hookThresholds;
 
@@ -47,7 +47,7 @@ export function ThresholdsForm({
       (acc, metric) => {
         const existing = thresholds.find((t) => t.metric === metric.key);
         acc[metric.key] = {
-          minValue: existing != null ? existing.minValue : "",
+          minValue: existing != null ? existing.minValue : metric.defaultMin,
           enabled: existing != null ? existing.isEnabled : true,
         };
         return acc;
@@ -62,7 +62,7 @@ export function ThresholdsForm({
         (acc, metric) => {
           const existing = thresholds.find((t) => t.metric === metric.key);
           acc[metric.key] = {
-            minValue: existing != null ? existing.minValue : "",
+            minValue: existing != null ? existing.minValue : metric.defaultMin,
             enabled: existing != null ? existing.isEnabled : true,
           };
           return acc;
@@ -76,7 +76,7 @@ export function ThresholdsForm({
     const updatedThresholds = DEFAULT_METRICS.map((metric) => ({
       customerId: customerId ?? "",
       metric: metric.key,
-      minValue: formData[metric.key]?.minValue ?? "0",
+      minValue: formData[metric.key]?.minValue ?? metric.defaultMin,
       isEnabled: formData[metric.key]?.enabled ?? true,
     }));
 

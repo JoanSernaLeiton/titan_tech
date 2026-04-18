@@ -26,7 +26,8 @@ export function evaluateThresholds(
       continue;
     }
 
-    if (typeof value !== "number") {
+    const numericValue = typeof value === "boolean" ? (value ? 1 : 0) : value;
+    if (typeof numericValue !== "number") {
       continue;
     }
 
@@ -35,10 +36,10 @@ export function evaluateThresholds(
       continue;
     }
 
-    if (value < minThreshold) {
+    if (numericValue < minThreshold) {
       breaches.push({
         metric: threshold.metric,
-        triggeredValue: value,
+        triggeredValue: numericValue,
         thresholdValue: minThreshold,
         alertType: "threshold_breach",
       });
