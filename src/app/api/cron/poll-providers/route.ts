@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { evaluateAlerts } from "@/features/dashboard/lib/alert-evaluator";
 import type { MetricMapping } from "@/features/dashboard/lib/metric-mapper";
 import { fetchAllMetricsForDevice } from "@/features/dashboard/lib/metric-mapper";
+import { getActiveAlertByDeviceAndMetric } from "@/features/dashboard/queries/alerts.queries";
 import { getAgreementVariablesByCustomerId } from "@/features/dashboard/queries/customer-agreement-variables.queries";
 import { getAllEnabledDevicesWithProvider } from "@/features/dashboard/queries/customer-devices.queries";
 import { getThresholdsByCustomerId } from "@/features/dashboard/queries/customer-thresholds.queries";
@@ -86,6 +87,10 @@ export async function GET(request: NextRequest) {
           const breaches = evaluateAlerts(metrics, thresholds, agreementVariables);
 
           for (const breach of breaches) {
+            const existing = await getActiveAlertByDeviceAndMetric(device.id, breach.metric);
+            if (existing != null) {
+              continue;
+            }
             await db.insert(alerts).values({
               customerId: device.customerId,
               deviceId: device.id,

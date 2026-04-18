@@ -1,6 +1,6 @@
 import "server-only";
 
-import { eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 
 import { db } from "@/shared/db";
 import { alerts } from "@/shared/db/alerts.schema";
@@ -29,4 +29,22 @@ export async function getAllAlerts(): Promise<
 
 export async function getAlertsByCustomerId(customerId: string): Promise<SelectAlert[]> {
   return db.select().from(alerts).where(eq(alerts.customerId, customerId));
+}
+
+export async function getActiveAlertByDeviceAndMetric(
+  deviceId: string,
+  metric: string
+): Promise<SelectAlert | undefined> {
+  const result = await db
+    .select()
+    .from(alerts)
+    .where(
+      and(
+        eq(alerts.deviceId, deviceId),
+        eq(alerts.metric, metric),
+        inArray(alerts.status, ["pending", "under_review"])
+      )
+    )
+    .limit(1);
+  return result[0];
 }
