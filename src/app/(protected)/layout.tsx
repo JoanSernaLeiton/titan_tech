@@ -1,21 +1,17 @@
-import { redirect } from "next/navigation";
+import { redirect } from 'next/navigation'
 
-import { DashboardLayout } from "@/features/dashboard/components/DashboardLayout";
-import { createClient } from "@/shared/lib/supabase/server";
+import { DashboardLayout } from '@/features/dashboard/components/DashboardLayout'
+import { createClient } from '@/shared/lib/supabase/server'
 
-export default async function ProtectedLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const supabase = await createClient();
+export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
+  const supabase = await createClient()
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getUser()
 
   if (user == null) {
-    redirect("/login");
+    redirect('/login')
   }
 
-  return <DashboardLayout>{children}</DashboardLayout>;
+  return <DashboardLayout user={user}>{children}</DashboardLayout>
 }

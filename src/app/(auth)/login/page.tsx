@@ -1,20 +1,22 @@
-import { LoginForm } from "@/features/auth/components/login-form";
+import { Sun } from 'lucide-react'
+
+import { LoginForm } from '@/features/auth/components/login-form'
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="w-full max-w-sm space-y-6">
-        <div className="space-y-3 text-center">
-          <p className="inline-flex rounded-full bg-accent px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-primary">
-            Techos Rentables
-          </p>
-          <h1 className="text-3xl font-semibold tracking-tight">Bienvenido de nuevo</h1>
-          <p className="text-sm text-muted-foreground">
-            Inicia sesion para acceder a una experiencia simple y facil de navegar.
-          </p>
+    <main className="flex min-h-screen items-center justify-center bg-background px-6">
+      <div className="w-full max-w-xs">
+        <div className="mb-8 flex flex-col items-center gap-3">
+          <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10">
+            <Sun className="size-6 text-primary" />
+          </div>
+          <div className="text-center">
+            <h1 className="text-lg font-semibold text-foreground">Techos Rentables</h1>
+            <p className="text-sm text-muted-foreground">Energía Solar</p>
+          </div>
         </div>
         <LoginForm />
       </div>
     </main>
-  );
+  )
 }
