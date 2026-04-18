@@ -17,6 +17,7 @@ interface Alert {
   customerName: string;
   deviceId: string | null;
   deviceName: string;
+  providerName: string;
   metric: string;
   metricLabel: string;
   unitLabel: string;
@@ -137,6 +138,7 @@ export function AlertDetail({ alert, open, onOpenChange }: AlertDetailProps) {
             <DetailRow label="Nombre Cliente" value={alert.customerName} />
             <DetailRow label="ID Dispositivo" value={alert.deviceId ?? "N/A"} monospace />
             <DetailRow label="Nombre Dispositivo" value={alert.deviceName} />
+            <DetailRow label="Proveedor" value={alert.providerName} />
           </Section>
 
           <Section title="Timestamp">
