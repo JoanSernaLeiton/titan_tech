@@ -1,12 +1,11 @@
 import "server-only";
 
-import { and, eq, max, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 import { db } from "@/shared/db";
 import { customerDevices } from "@/shared/db/customer-devices.schema";
 import { customers } from "@/shared/db/customers.schema";
 import { deviceMetricSnapshots } from "@/shared/db/device-metric-snapshots.schema";
-import { providers } from "@/shared/db/providers.schema";
 
 export interface GlobalMetricsRaw {
   totalCustomers: number;
@@ -22,37 +21,48 @@ export interface GlobalMetricsRaw {
 
 const DEFAULT_CO2_KG_PER_KWH = 0.16438; // Colombia SIN 2026: 164.38 gCO₂eq/kWh
 
+function startOfMonthUtc(now: Date): Date {
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
+}
+
+function startOfTodayUtc(now: Date): Date {
+  return new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0, 0)
+  );
+}
+
+interface SnapshotBucket {
+  latest: {
+    activePowerKw: string | null;
+    isOnline: boolean;
+    snapshotAt: Date;
+  } | null;
+  energyTodayPeak: number;
+  energyMonthByDay: Map<string, number>;
+}
+
 export async function getGlobalMetricsRaw(): Promise<GlobalMetricsRaw> {
-  // Subquery: latest snapshot_at per device (history table — one row per cron poll)
-  const latestPerDevice = db
-    .select({
-      deviceId: deviceMetricSnapshots.deviceId,
-      latestAt: max(deviceMetricSnapshots.snapshotAt).as("latest_at"),
-    })
-    .from(deviceMetricSnapshots)
-    .groupBy(deviceMetricSnapshots.deviceId)
-    .as("latest_per_device");
+  const now = new Date();
+  const monthStart = startOfMonthUtc(now);
+  const todayStart = startOfTodayUtc(now);
 
   const [snapshotRows, totalDevicesRow, totalCustomersRow] = await Promise.all([
     db
       .select({
+        deviceId: deviceMetricSnapshots.deviceId,
         energyTodayKwh: deviceMetricSnapshots.energyTodayKwh,
-        energyMonthKwh: deviceMetricSnapshots.energyMonthKwh,
         activePowerKw: deviceMetricSnapshots.activePowerKw,
         isOnline: deviceMetricSnapshots.isOnline,
         snapshotAt: deviceMetricSnapshots.snapshotAt,
       })
       .from(deviceMetricSnapshots)
-      .innerJoin(
-        latestPerDevice,
-        and(
-          eq(deviceMetricSnapshots.deviceId, latestPerDevice.deviceId),
-          eq(deviceMetricSnapshots.snapshotAt, latestPerDevice.latestAt),
-        )
-      )
       .innerJoin(customerDevices, eq(deviceMetricSnapshots.deviceId, customerDevices.id))
-      .innerJoin(providers, eq(customerDevices.providerId, providers.id))
-      .where(eq(customerDevices.isEnabled, true)),
+      .where(
+        and(
+          eq(customerDevices.isEnabled, true),
+          sql`${deviceMetricSnapshots.snapshotAt} >= ${monthStart.toISOString()}`,
+        )
+      ),
 
     db
       .select({ total: sql<number>`count(*)::int` })
@@ -66,23 +76,58 @@ export async function getGlobalMetricsRaw(): Promise<GlobalMetricsRaw> {
 
   const totalDevices = totalDevicesRow[0]?.total ?? 0;
   const totalCustomers = totalCustomersRow[0]?.total ?? 0;
-  const onlineDevices = snapshotRows.filter((r) => r.isOnline).length;
-  const energyTodayKwhSum = snapshotRows.reduce(
-    (acc, r) => acc + (r.energyTodayKwh != null ? parseFloat(r.energyTodayKwh) : 0),
-    0
-  );
-  const energyMonthKwhSum = snapshotRows.reduce(
-    (acc, r) => acc + (r.energyMonthKwh != null ? parseFloat(r.energyMonthKwh) : 0),
-    0
-  );
-  const activePowerKwSum = snapshotRows.reduce(
-    (acc, r) => acc + (r.activePowerKw != null ? parseFloat(r.activePowerKw) : 0),
-    0
-  );
-  const latestSnapshotAt = snapshotRows.reduce<Date | null>((latest, r) => {
-    if (latest == null) return r.snapshotAt;
-    return r.snapshotAt > latest ? r.snapshotAt : latest;
-  }, null);
+
+  const byDevice = new Map<string, SnapshotBucket>();
+  for (const s of snapshotRows) {
+    const bucket = byDevice.get(s.deviceId) ?? {
+      latest: null,
+      energyTodayPeak: 0,
+      energyMonthByDay: new Map<string, number>(),
+    };
+
+    const dayKey = s.snapshotAt.toISOString().slice(0, 10);
+    const energyVal = s.energyTodayKwh != null ? parseFloat(s.energyTodayKwh) : 0;
+    const priorDayPeak = bucket.energyMonthByDay.get(dayKey) ?? 0;
+    if (energyVal > priorDayPeak) bucket.energyMonthByDay.set(dayKey, energyVal);
+
+    if (s.snapshotAt >= todayStart && energyVal > bucket.energyTodayPeak) {
+      bucket.energyTodayPeak = energyVal;
+    }
+
+    if (bucket.latest == null || s.snapshotAt > bucket.latest.snapshotAt) {
+      bucket.latest = {
+        activePowerKw: s.activePowerKw,
+        isOnline: s.isOnline,
+        snapshotAt: s.snapshotAt,
+      };
+    }
+
+    byDevice.set(s.deviceId, bucket);
+  }
+
+  let onlineDevices = 0;
+  let energyTodayKwhSum = 0;
+  let energyMonthKwhSum = 0;
+  let activePowerKwSum = 0;
+  let latestSnapshotAt: Date | null = null;
+
+  for (const bucket of byDevice.values()) {
+    energyTodayKwhSum += bucket.energyTodayPeak;
+    for (const dayPeak of bucket.energyMonthByDay.values()) {
+      energyMonthKwhSum += dayPeak;
+    }
+
+    const latest = bucket.latest;
+    if (latest != null) {
+      if (latest.isOnline) onlineDevices += 1;
+      if (latest.activePowerKw != null) {
+        activePowerKwSum += parseFloat(latest.activePowerKw);
+      }
+      if (latestSnapshotAt == null || latest.snapshotAt > latestSnapshotAt) {
+        latestSnapshotAt = latest.snapshotAt;
+      }
+    }
+  }
 
   return {
     totalCustomers,
