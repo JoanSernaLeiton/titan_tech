@@ -7,14 +7,10 @@ import { LoadingState, PageState } from "../layout/PageState";
 
 import { DateRangePicker, presetToRange, type DateRangeValue } from "./DateRangePicker";
 import { DevicesMetricsTable } from "./DevicesMetricsTable";
-import { EnergyTrendChart } from "./EnergyTrendChart";
 import { HomeFilterBar } from "./HomeFilterBar";
 import { HomeMetricsGrid } from "./HomeMetricsGrid";
 
-import {
-  useDailyEnergy,
-  useDevicesWithMetrics,
-} from "@/features/dashboard/hooks/use-home-metrics";
+import { useDevicesWithMetrics } from "@/features/dashboard/hooks/use-home-metrics";
 import {
   computeSummary,
   DEFAULT_FILTERS,
@@ -50,16 +46,9 @@ export function DashboardHome() {
     isError,
   } = useDevicesWithMetrics(isoRange);
 
-  const {
-    data: dailyEnergy,
-    isPending: isDailyPending,
-    isError: isDailyError,
-  } = useDailyEnergy(isoRange);
-
   const filteredRows = useMemo(() => filterRows(rows, filters), [rows, filters]);
   const summary = useMemo(() => computeSummary(filteredRows), [filteredRows]);
   const rangeLabel = buildRangeLabel(range);
-  const showEnergyChart = filters.metrics.has("energy");
 
   return (
     <DashboardPageShell
@@ -89,13 +78,6 @@ export function DashboardHome() {
             rangeLabel={rangeLabel}
             visibleMetrics={filters.metrics}
           />
-          {showEnergyChart && (
-            <EnergyTrendChart
-              data={dailyEnergy}
-              isLoading={isDailyPending}
-              isError={isDailyError}
-            />
-          )}
           <DevicesMetricsTable rows={filteredRows} visibleMetrics={filters.metrics} />
         </>
       )}

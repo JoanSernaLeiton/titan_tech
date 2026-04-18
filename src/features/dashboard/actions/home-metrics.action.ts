@@ -2,9 +2,7 @@
 
 import {
   getHomeMetricsRaw,
-  listDailyEnergyInRange,
   listDevicesWithMetricsInRange,
-  type DailyEnergyPoint,
   type DateRange,
   type DeviceMetricsRow,
 } from "@/features/dashboard/queries/home-metrics.queries";
@@ -69,12 +67,4 @@ export async function listDevicesWithMetricsAction(
   const user = await getUser();
   if (user == null) throw new Error("No autorizado");
   return listDevicesWithMetricsInRange(parseRange(range));
-}
-
-export async function listDailyEnergyAction(
-  range: SerializableDateRange
-): Promise<DailyEnergyPoint[]> {
-  const user = await getUser();
-  if (user == null) throw new Error("No autorizado");
-  return listDailyEnergyInRange(parseRange(range));
 }
