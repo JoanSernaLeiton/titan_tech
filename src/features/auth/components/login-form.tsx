@@ -44,10 +44,10 @@ export function LoginForm() {
   });
 
   return (
-    <Card>
+    <Card className="border-border/70 bg-card/90 shadow-xs">
       <CardHeader>
         <CardTitle>Iniciar sesión</CardTitle>
-        <CardDescription>Ingresa tu correo y contraseña</CardDescription>
+        <CardDescription>Ingresa tu correo y contrasena</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={(e) => { void onSubmit(e); }} data-testid="login-form" className="space-y-4">

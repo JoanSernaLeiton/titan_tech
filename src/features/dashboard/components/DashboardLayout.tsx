@@ -1,13 +1,31 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+import { useMemo } from "react";
+
 import { Sidebar } from "./sidebar/Sidebar";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const sectionTitle = useMemo(() => {
+    if (pathname.startsWith("/dashboard/providers")) return "Proveedores";
+    if (pathname.startsWith("/dashboard/customers")) return "Clientes";
+    if (pathname.startsWith("/dashboard/reports")) return "Reportes";
+    if (pathname.startsWith("/dashboard/alerts")) return "Alertas";
+    return "Panel principal";
+  }, [pathname]);
+
   return (
-    <div className="flex h-screen">
+    <div className="flex min-h-screen bg-background">
       <Sidebar />
       <main className="flex-1 overflow-auto">
-        {children}
+        <div className="sticky top-0 z-20 border-b border-border/70 bg-background/95 px-6 py-4 backdrop-blur-sm md:px-8">
+          <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+            Techos Rentables
+          </p>
+          <h2 className="text-lg font-semibold text-foreground">{sectionTitle}</h2>
+        </div>
+        <div className="mx-auto w-full max-w-7xl p-6 md:p-8">{children}</div>
       </main>
     </div>
   );

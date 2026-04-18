@@ -1,6 +1,6 @@
 "use client";
 
-import { Settings2, Users, BarChart3, Bell } from "lucide-react";
+import { BarChart3, Bell, Building2, Settings2, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -31,12 +31,26 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 border-r bg-card flex flex-col">
-      <div className="p-6 border-b">
-        <h1 className="text-xl font-semibold">Panel Solar</h1>
+    <aside className="flex w-72 flex-col border-r border-border/70 bg-card/70">
+      <div className="border-b border-border/70 p-6">
+        <Link href="/dashboard/providers" className="block space-y-3">
+          <div className="inline-flex items-center gap-2 rounded-full bg-accent px-3 py-1">
+            <Building2 className="size-4 text-primary" />
+            <span className="text-xs font-medium uppercase tracking-[0.14em] text-primary">
+              Techos Rentables
+            </span>
+          </div>
+          <div>
+            <p className="text-lg font-semibold text-foreground">Energia Solar</p>
+            <p className="text-sm text-muted-foreground">Panel de gestion simplificado</p>
+          </div>
+        </Link>
       </div>
       <nav className="flex-1 p-4">
-        <ul className="space-y-2">
+        <p className="px-3 py-2 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+          Navegacion
+        </p>
+        <ul className="space-y-1">
           {navigationItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname.startsWith(item.href);
@@ -44,13 +58,13 @@ export function Sidebar() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-3 px-4 py-2 rounded-md transition-colors ${
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "hover:bg-accent text-foreground"
+                      ? "bg-primary text-primary-foreground shadow-xs"
+                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                   }`}
                 >
-                  <Icon className="size-5" />
+                  <Icon className="size-4" />
                   <span>{item.label}</span>
                 </Link>
               </li>
@@ -58,6 +72,11 @@ export function Sidebar() {
           })}
         </ul>
       </nav>
+      <div className="border-t border-border/70 p-4">
+        <p className="rounded-lg bg-muted/70 px-3 py-2 text-xs text-muted-foreground">
+          Diseno minimalista para navegacion clara y rapida.
+        </p>
+      </div>
     </aside>
   );
 }

@@ -2,6 +2,9 @@
 
 import { useMemo, useState } from "react";
 
+import { DashboardPageShell } from "../layout/DashboardPageShell";
+import { LoadingState, PageState } from "../layout/PageState";
+
 import { ReportsTable } from "./ReportsTable";
 
 import { useCustomerDevices } from "@/features/dashboard/hooks/use-customer-devices";
@@ -22,7 +25,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import { Spinner } from "@/shared/components/ui/spinner";
 
 function currentMonth(): string {
   return String(new Date().getMonth() + 1);
@@ -87,27 +89,27 @@ export function ReportsPlaceholder() {
 
   if (isError) {
     return (
-      <div className="p-8 space-y-6">
-        <h1 className="text-3xl font-bold">Reportes</h1>
-        <div className="rounded-lg border border-destructive bg-destructive/10 p-4">
-          <p className="text-destructive">No se pudieron cargar los reportes. Intenta nuevamente.</p>
-        </div>
-      </div>
+      <DashboardPageShell
+        title="Reportes"
+        description="Genera y descarga reportes con un flujo rapido y facil de navegar."
+      >
+        <PageState
+          tone="error"
+          message="No se pudieron cargar los reportes. Intenta nuevamente."
+        />
+      </DashboardPageShell>
     );
   }
 
   return (
-    <div className="p-8 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Reportes</h1>
-        <p className="text-muted-foreground mt-2">
-          Genera reportes mensuales para clientes y ad-hoc comercial con exportacion PDF/XLSX.
-        </p>
-      </div>
+    <DashboardPageShell
+      title="Reportes"
+      description="Genera reportes mensuales y ad-hoc comercial con exportacion PDF y XLSX."
+    >
 
-      <Card>
+      <Card className="border-border/70 bg-card/90 shadow-xs">
         <CardHeader>
-          <CardTitle>Generacion de Reportes</CardTitle>
+          <CardTitle>Generacion de reportes</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-4">
           <Select value={customerId} onValueChange={setCustomerId}>
@@ -163,9 +165,9 @@ export function ReportsPlaceholder() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="border-border/70 bg-card/90 shadow-xs">
         <CardHeader>
-          <CardTitle>Historial de Reportes</CardTitle>
+          <CardTitle>Historial de reportes</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-3">
@@ -195,9 +197,7 @@ export function ReportsPlaceholder() {
           </div>
 
           {isPending ? (
-            <div className="flex justify-center py-8">
-              <Spinner />
-            </div>
+            <LoadingState message="Cargando historial de reportes..." />
           ) : (
             <ReportsTable
               rows={reports}
@@ -209,6 +209,6 @@ export function ReportsPlaceholder() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </DashboardPageShell>
   );
 }

@@ -18,7 +18,7 @@ interface CustomersListProps {
 
 export function CustomersList({ customers, onDelete }: CustomersListProps) {
   return (
-    <div className="rounded-lg border">
+    <div className="rounded-xl border border-border/70 bg-card/90 shadow-xs">
       <Table>
         <TableHeader>
           <TableRow>

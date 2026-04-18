@@ -4,8 +4,8 @@ import "./globals.css";
 import { Providers } from "@/shared/components/providers";
 
 export const metadata: Metadata = {
-  title: "Hackathon App",
-  description: "Built with nextjs-hackathon-stack",
+  title: "Techos Rentables",
+  description: "Plataforma solar con experiencia minimalista y simple.",
 };
 
 export default function RootLayout({
@@ -14,8 +14,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body>
+    <html lang="es" suppressHydrationWarning>
+      <body className="min-h-screen bg-background text-foreground">
         <Providers>{children}</Providers>
       </body>
     </html>

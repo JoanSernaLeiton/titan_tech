@@ -48,54 +48,64 @@ function formatPeriod(month: number, year: number): string {
 
 export function ReportsTable({ rows, isDownloading, onDownload }: ReportsTableProps) {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Cliente</TableHead>
-          <TableHead>Tipo</TableHead>
-          <TableHead>Periodo</TableHead>
-          <TableHead>Estado</TableHead>
-          <TableHead>Advertencias</TableHead>
-          <TableHead>Generado</TableHead>
-          <TableHead>Descargas</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {rows.map((row) => (
-          <TableRow key={row.id}>
-            <TableCell>{row.customerName}</TableCell>
-            <TableCell>{typeLabel(row.reportType)}</TableCell>
-            <TableCell>{formatPeriod(row.periodMonth, row.periodYear)}</TableCell>
-            <TableCell>
-              <Badge variant={statusVariant(row.status)}>{row.status}</Badge>
-            </TableCell>
-            <TableCell>{row.warningsCount}</TableCell>
-            <TableCell>{row.createdAt.toLocaleString("es-CO")}</TableCell>
-            <TableCell className="space-x-2">
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={isDownloading}
-                onClick={() => {
-                  onDownload(row.id, "pdf");
-                }}
-              >
-                PDF
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={isDownloading}
-                onClick={() => {
-                  onDownload(row.id, "xlsx");
-                }}
-              >
-                XLSX
-              </Button>
-            </TableCell>
+    <div className="rounded-xl border border-border/70 bg-card/90 shadow-xs">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Cliente</TableHead>
+            <TableHead>Tipo</TableHead>
+            <TableHead>Periodo</TableHead>
+            <TableHead>Estado</TableHead>
+            <TableHead>Advertencias</TableHead>
+            <TableHead>Generado</TableHead>
+            <TableHead>Descargas</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {rows.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+                No hay reportes para los filtros seleccionados.
+              </TableCell>
+            </TableRow>
+          ) : (
+            rows.map((row) => (
+              <TableRow key={row.id}>
+                <TableCell>{row.customerName}</TableCell>
+                <TableCell>{typeLabel(row.reportType)}</TableCell>
+                <TableCell>{formatPeriod(row.periodMonth, row.periodYear)}</TableCell>
+                <TableCell>
+                  <Badge variant={statusVariant(row.status)}>{row.status}</Badge>
+                </TableCell>
+                <TableCell>{row.warningsCount}</TableCell>
+                <TableCell>{row.createdAt.toLocaleString("es-CO")}</TableCell>
+                <TableCell className="space-x-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={isDownloading}
+                    onClick={() => {
+                      onDownload(row.id, "pdf");
+                    }}
+                  >
+                    PDF
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={isDownloading}
+                    onClick={() => {
+                      onDownload(row.id, "xlsx");
+                    }}
+                  >
+                    XLSX
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 }

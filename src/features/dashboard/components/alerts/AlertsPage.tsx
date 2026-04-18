@@ -1,9 +1,11 @@
 "use client";
 
+import { DashboardPageShell } from "../layout/DashboardPageShell";
+import { LoadingState, PageState } from "../layout/PageState";
+
 import { AlertsList } from "./AlertsList";
 
 import { useAlerts, useUpdateAlertStatus } from "@/features/dashboard/hooks/use-alerts";
-import { Spinner } from "@/shared/components/ui/spinner";
 
 interface Alert {
   id: string;
@@ -39,31 +41,29 @@ export function AlertsPage() {
 
   if (isError) {
     return (
-      <div className="p-8 space-y-6">
-        <h1 className="text-3xl font-bold">Alertas</h1>
-        <div className="rounded-lg border border-destructive bg-destructive/10 p-4">
-          <p className="text-destructive">No se pudieron cargar las alertas. Por favor, intenta de nuevo.</p>
-        </div>
-      </div>
+      <DashboardPageShell
+        title="Alertas"
+        description="Monitorea incidentes con una vista limpia y de lectura rapida."
+      >
+        <PageState
+          tone="error"
+          message="No se pudieron cargar las alertas. Por favor, intenta de nuevo."
+        />
+      </DashboardPageShell>
     );
   }
 
   return (
-    <div className="p-8 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Alertas</h1>
-        <p className="text-muted-foreground mt-2">
-          Monitorea y gestiona alertas de dispositivos y violaciones de acuerdos
-        </p>
-      </div>
+    <DashboardPageShell
+      title="Alertas"
+      description="Monitorea y gestiona alertas de dispositivos y violaciones de acuerdos."
+    >
 
       {isPending ? (
-        <div className="flex justify-center p-8">
-          <Spinner />
-        </div>
+        <LoadingState message="Cargando alertas..." />
       ) : (
         <AlertsList alerts={mappedAlerts} onStatusChange={handleStatusChange} />
       )}
-    </div>
+    </DashboardPageShell>
   );
 }

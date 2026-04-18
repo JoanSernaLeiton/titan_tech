@@ -5,6 +5,7 @@ import { useState } from "react";
 import { AgreementVariablesForm } from "../agreement-variables/AgreementVariablesForm";
 import { DeviceForm } from "../devices/DeviceForm";
 import { DevicesList } from "../devices/DevicesList";
+import { DashboardPageShell } from "../layout/DashboardPageShell";
 import { ThresholdsForm } from "../thresholds/ThresholdsForm";
 
 import { CustomerMetricsPanel } from "./CustomerMetricsPanel";
@@ -99,16 +100,15 @@ export function CustomerDetail({
   };
 
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex items-center gap-4">
+    <DashboardPageShell
+      title={customer.name}
+      description={customer.email}
+      actions={(
         <Button variant="outline" onClick={onBack}>
           Volver
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold">{customer.name}</h1>
-          <p className="text-muted-foreground mt-1">{customer.email}</p>
-        </div>
-      </div>
+      )}
+    >
 
       <CustomerMetricsPanel customerId={customer.id} agreementVariables={variables} />
 
@@ -184,6 +184,6 @@ export function CustomerDetail({
           />
         </DialogContent>
       </Dialog>
-    </div>
+    </DashboardPageShell>
   );
 }

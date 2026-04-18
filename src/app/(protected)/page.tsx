@@ -9,16 +9,23 @@ export default async function HomePage() {
   if (user == null) redirect("/login");
 
   return (
-    <main className="container mx-auto max-w-2xl p-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
+    <main className="mx-auto w-full max-w-4xl p-6 md:p-8">
+      <div className="mb-6 flex items-center justify-between rounded-xl border border-border/70 bg-card/90 px-5 py-4 shadow-xs">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-[0.14em] text-primary">
+            Techos Rentables
+          </p>
+          <h1 className="text-2xl font-semibold">Dashboard</h1>
+        </div>
         <form action={logoutAction}>
-          <button type="submit" className="rounded bg-muted px-4 py-2 text-sm hover:bg-muted-foreground/10">
+          <button type="submit" className="rounded-lg border border-border bg-background px-4 py-2 text-sm hover:bg-accent">
             Cerrar sesión
           </button>
         </form>
       </div>
-      <p className="text-muted-foreground">¡Bienvenido! Empieza a construir tu aplicación.</p>
+      <p className="text-muted-foreground">
+        Bienvenido. Usa el menu lateral para navegar entre modulos.
+      </p>
     </main>
   );
 }

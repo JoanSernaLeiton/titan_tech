@@ -37,11 +37,11 @@ export function AlertsList({ alerts, onStatusChange }: AlertsListProps) {
   const getAlertTypeColor = (type: Alert["alertType"]) => {
     switch (type) {
       case "threshold_breach":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
+        return "border-warning/30 bg-warning/15 text-warning";
       case "agreement_breach":
-        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
+        return "border-destructive/30 bg-destructive/10 text-destructive";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "border-border bg-muted text-muted-foreground";
     }
   };
 
@@ -67,7 +67,7 @@ export function AlertsList({ alerts, onStatusChange }: AlertsListProps) {
   };
 
   return (
-    <div className="rounded-lg border">
+    <div className="rounded-xl border border-border/70 bg-card/90 shadow-xs">
       <Table>
         <TableHeader>
           <TableRow>
@@ -110,12 +110,9 @@ export function AlertsList({ alerts, onStatusChange }: AlertsListProps) {
                 <TableCell>
                   <Select
                     value={alert.status}
-                    onValueChange={(value) =>
-                      { onStatusChange(
-                        alert.id,
-                        value as Alert["status"]
-                      ); }
-                    }
+                    onValueChange={(value) => {
+                      onStatusChange(alert.id, value as Alert["status"]);
+                    }}
                   >
                     <SelectTrigger className="w-32">
                       <SelectValue />

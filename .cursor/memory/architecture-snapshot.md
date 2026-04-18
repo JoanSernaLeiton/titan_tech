@@ -36,6 +36,7 @@ _Add new tables here after `pnpm db:generate && pnpm db:migrate`_
 | auth | `src/features/auth/` | Login/logout, cookie-based sessions via Supabase |
 | todos | `src/features/todos/` | CRUD todos with Supabase RLS |
 | reports | `src/features/dashboard/components/reports/` + `src/features/dashboard/actions/reports.action.ts` | Monthly and commercial ad-hoc report generation, listing, and PDF/XLSX download |
+| ui-ux-brand-shell | `tailwind.css` + `src/features/dashboard/components/layout/` + `src/features/dashboard/components/sidebar/Sidebar.tsx` | Minimalist brand-aligned shell with neutral token palette, unified page headers/states, and consistent navigation across dashboard modules |
 
 _Add new features here after implementation_
 

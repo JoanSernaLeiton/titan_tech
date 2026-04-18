@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 
+import { DashboardPageShell } from "../layout/DashboardPageShell";
+import { LoadingState, PageState } from "../layout/PageState";
+
 import { ProviderForm } from "./ProviderForm";
 import { ProvidersList } from "./ProvidersList";
 
@@ -18,7 +21,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import { Spinner } from "@/shared/components/ui/spinner";
 import type { InsertProvider, SelectProvider } from "@/shared/db/providers.schema";
 
 export function ProvidersPage() {
@@ -65,33 +67,31 @@ export function ProvidersPage() {
 
   if (isError) {
     return (
-      <div className="p-8 space-y-6">
-        <h1 className="text-3xl font-bold">Configurar Proveedores</h1>
-        <div className="rounded-lg border border-destructive bg-destructive/10 p-4">
-          <p className="text-destructive">No se pudieron cargar los proveedores. Por favor, intenta de nuevo.</p>
-        </div>
-      </div>
+      <DashboardPageShell
+        title="Configurar proveedores"
+        description="Gestiona los proveedores de datos solares con una estructura simple y consistente."
+      >
+        <PageState
+          tone="error"
+          message="No se pudieron cargar los proveedores. Por favor, intenta de nuevo."
+        />
+      </DashboardPageShell>
     );
   }
 
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Configurar Proveedores</h1>
-          <p className="text-muted-foreground mt-2">
-            Gestiona tus proveedores de datos solares
-          </p>
-        </div>
+    <DashboardPageShell
+      title="Configurar proveedores"
+      description="Gestiona tus proveedores de datos solares y mantiene tu operacion conectada."
+      actions={(
         <Button onClick={handleAddProvider} disabled={isPending}>
           Agregar Proveedor
         </Button>
-      </div>
+      )}
+    >
 
       {isPending ? (
-        <div className="flex justify-center p-8">
-          <Spinner />
-        </div>
+        <LoadingState message="Cargando proveedores..." />
       ) : (
         <ProvidersList
           providers={providers}
@@ -114,6 +114,6 @@ export function ProvidersPage() {
           />
         </DialogContent>
       </Dialog>
-    </div>
+    </DashboardPageShell>
   );
 }

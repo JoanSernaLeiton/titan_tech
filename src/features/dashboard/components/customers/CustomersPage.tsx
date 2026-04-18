@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 
+import { DashboardPageShell } from "../layout/DashboardPageShell";
+import { LoadingState, PageState } from "../layout/PageState";
+
 import { CustomerForm } from "./CustomerForm";
 import { CustomersList } from "./CustomersList";
 
@@ -17,7 +20,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import { Spinner } from "@/shared/components/ui/spinner";
 import type { InsertCustomer } from "@/shared/db/customers.schema";
 
 export function CustomersPage() {
@@ -46,33 +48,31 @@ export function CustomersPage() {
 
   if (isError) {
     return (
-      <div className="p-8 space-y-6">
-        <h1 className="text-3xl font-bold">Clientes</h1>
-        <div className="rounded-lg border border-destructive bg-destructive/10 p-4">
-          <p className="text-destructive">No se pudieron cargar los clientes. Por favor, intenta de nuevo.</p>
-        </div>
-      </div>
+      <DashboardPageShell
+        title="Clientes"
+        description="Administra clientes e instalaciones desde una vista clara y ordenada."
+      >
+        <PageState
+          tone="error"
+          message="No se pudieron cargar los clientes. Por favor, intenta de nuevo."
+        />
+      </DashboardPageShell>
     );
   }
 
   return (
-    <div className="p-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Clientes</h1>
-          <p className="text-muted-foreground mt-2">
-            Gestiona tus clientes y sus instalaciones solares
-          </p>
-        </div>
+    <DashboardPageShell
+      title="Clientes"
+      description="Gestiona tus clientes y sus instalaciones solares con una navegacion simple."
+      actions={(
         <Button onClick={handleAddCustomer} disabled={isPending}>
           Agregar Cliente
         </Button>
-      </div>
+      )}
+    >
 
       {isPending ? (
-        <div className="flex justify-center p-8">
-          <Spinner />
-        </div>
+        <LoadingState message="Cargando clientes..." />
       ) : (
         <CustomersList customers={customers} onDelete={handleDelete} />
       )}
@@ -88,6 +88,6 @@ export function CustomersPage() {
           />
         </DialogContent>
       </Dialog>
-    </div>
+    </DashboardPageShell>
   );
 }

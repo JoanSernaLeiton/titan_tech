@@ -1,26 +1,32 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #ffffff;
-  --color-foreground: #111111;
-  --color-primary: #022633;
+  --color-background: #f7f8fa;
+  --color-foreground: #14222d;
+  --color-primary: #0a4f6f;
   --color-primary-foreground: #ffffff;
-  --color-secondary: #f6a623;
-  --color-secondary-foreground: #ffffff;
-  --color-muted: #f5f5f5;
-  --color-muted-foreground: #666666;
-  --color-accent: #044a68;
-  --color-accent-foreground: #ffffff;
+  --color-secondary: #f0d24b;
+  --color-secondary-foreground: #14222d;
+  --color-muted: #edf1f4;
+  --color-muted-foreground: #5a6b78;
+  --color-accent: #dce8ef;
+  --color-accent-foreground: #14222d;
   --color-destructive: hsl(0 84.2% 60.2%);
   --color-destructive-foreground: #ffffff;
-  --color-success: hsl(142 71% 45%);
+  --color-success: #2f7d4a;
   --color-success-foreground: #ffffff;
-  --color-warning: hsl(38 92% 50%);
+  --color-warning: #c69512;
   --color-warning-foreground: #ffffff;
-  --color-info: hsl(199 89% 48%);
+  --color-info: #0a4f6f;
   --color-info-foreground: #ffffff;
-  --color-border: #e5e5e5;
-  --color-input: #e5e5e5;
-  --color-ring: #022633;
-  --radius: 0.5rem;
+  --color-border: #d4dde3;
+  --color-input: #d4dde3;
+  --color-ring: #0a4f6f;
+  --radius: 0.75rem;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
 }
