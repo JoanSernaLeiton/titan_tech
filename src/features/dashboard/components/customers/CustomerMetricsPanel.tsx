@@ -132,7 +132,7 @@ export function CustomerMetricsPanel({
           value={isLoading ? null : `${fmt(data?.availabilityPct ?? 0)}%`}
           subtitle={
             data != null
-              ? `${data.onlineDevices}/${data.totalDevices} dispositivos`
+              ? `${String(data.onlineDevices)}/${String(data.totalDevices)} dispositivos`
               : "—"
           }
           icon="📶"
