@@ -20,6 +20,7 @@ _Add new components here after `shadcn add <component>`_
 | `customer_agreement_variables` | id (uuid PK), customerId (uuid FK→customers), variable (enum: energia_ahorrada/dinero_ahorrado/disponibilidad_sistema/performance_ratio/mitigacion_co2), monthlyTarget (numeric), unit (enum: kWh/MWh/GWh/kW/MW/%/kg/ton/COP/USD/EUR/MXN), enabled (bool) | Yes | customers (cascade delete) |
 | `customer_thresholds` | id (uuid PK), customerId (uuid FK→customers), metric (text), minValue (numeric), isEnabled (bool) | Yes | customers (cascade delete) |
 | `alerts` | id (uuid PK), customerId (uuid FK→customers), deviceId (uuid FK→customer_devices nullable), metric (text), triggeredValue (numeric), thresholdValue (numeric), alertType (enum: threshold_breach/agreement_breach), triggeredAt (timestamp), status (enum: pending/under_review/resolved) | Yes | customers, customer_devices |
+| `reports` | id (uuid PK), customerId (uuid FK→customers), reportType (enum: monthly/commercial_adhoc), status (enum: pending/ready/partial/failed), periodYear (int), periodMonth (int), timezone (text), generatedByEmail (text), isAsync (bool), warnings (jsonb), metrics (jsonb), pdfContent (text), xlsxContent (text), createdAt, updatedAt | Pending (requires migration + RLS policy) | customers (cascade delete) |
 
 **Migration Status:**
 - ✓ `0000_medical_overlord.sql`: Created all 6 new tables + enums + FKs
@@ -34,6 +35,7 @@ _Add new tables here after `pnpm db:generate && pnpm db:migrate`_
 |---------|------|-------------|
 | auth | `src/features/auth/` | Login/logout, cookie-based sessions via Supabase |
 | todos | `src/features/todos/` | CRUD todos with Supabase RLS |
+| reports | `src/features/dashboard/components/reports/` + `src/features/dashboard/actions/reports.action.ts` | Monthly and commercial ad-hoc report generation, listing, and PDF/XLSX download |
 
 _Add new features here after implementation_
 
@@ -49,6 +51,7 @@ Read these files to understand the project's proven patterns before writing new 
 | Action test | `src/features/todos/__tests__/todos.action.test.ts` |
 | Component test | `src/features/todos/__tests__/todo-list.test.tsx` |
 | Supabase mock chain | `src/shared/test-utils/supabase-mock.ts` |
+| Report builder utility | `src/features/dashboard/lib/report-builder.ts` |
 
 ## Seeding
 

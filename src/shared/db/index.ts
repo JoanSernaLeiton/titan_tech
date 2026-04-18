@@ -8,6 +8,7 @@ import * as customerThresholds from "./customer-thresholds.schema";
 import * as customers from "./customers.schema";
 import * as profiles from "./profiles.schema";
 import * as providers from "./providers.schema";
+import * as reports from "./reports.schema";
 
 const schema = {
   ...profiles,
@@ -17,6 +18,7 @@ const schema = {
   ...customerAgreementVariables,
   ...customerThresholds,
   ...alerts,
+  ...reports,
 };
 
 type DB = PostgresJsDatabase<typeof schema>;

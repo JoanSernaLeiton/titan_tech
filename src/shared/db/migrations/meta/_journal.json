@@ -15,6 +15,13 @@
       "when": 1776491860279,
       "tag": "0001_equal_satana",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776502977511,
+      "tag": "0002_dapper_marrow",
+      "breakpoints": true
     }
   ]
 }
