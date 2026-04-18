@@ -19,6 +19,7 @@ export interface Alert {
   customerName: string;
   deviceId: string | null;
   deviceName: string;
+  providerName: string;
   metric: string;
   metricLabel: string;
   unitLabel: string;
@@ -120,6 +121,7 @@ export function AlertsPage() {
           customerName: alert.customer.name,
           deviceId: alert.device?.id ?? null,
           deviceName: alert.device?.deviceName ?? "Desconocido",
+          providerName: alert.provider?.displayName ?? "Desconocido",
           metric,
           metricLabel: getMetricLabel(metric),
           unitLabel: getMetricUnit(metric),

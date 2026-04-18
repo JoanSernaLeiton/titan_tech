@@ -1,6 +1,8 @@
 "use client";
 
+import { Download, FilterX } from "lucide-react";
 import { useEffect, useState } from "react";
+
 
 import { DEFAULT_METRICS } from "@/features/dashboard/lib/metric-labels";
 import { Button } from "@/shared/components/ui/button";
@@ -167,30 +169,34 @@ export function AlertsFilters({ filters, onFiltersChange, resultCount, onDownloa
           />
         </div>
 
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={!active}
-          onClick={clearAll}
-          className="h-9 self-end"
-        >
-          Limpiar filtros
-        </Button>
-
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={!active}
-          onClick={onDownload}
-          className="h-9 self-end"
-        >
-          Descargar CSV
-        </Button>
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        {resultCount} {resultCount === 1 ? "alerta encontrada" : "alertas encontradas"}
-      </p>
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-muted-foreground">
+          {resultCount} {resultCount === 1 ? "alerta encontrada" : "alertas encontradas"}
+        </p>
+        <div className="flex gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={!active}
+            onClick={clearAll}
+            className="h-8 gap-1.5"
+          >
+            <FilterX className="size-3.5" />
+            Limpiar filtros
+          </Button>
+          <Button
+            size="sm"
+            disabled={!active}
+            onClick={onDownload}
+            className="h-8 gap-1.5"
+          >
+            <Download className="size-3.5" />
+            Descargar CSV
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

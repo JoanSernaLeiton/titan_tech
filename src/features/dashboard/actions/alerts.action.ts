@@ -9,11 +9,13 @@ import { customerDevices } from "@/shared/db/customer-devices.schema";
 import type { SelectCustomerDevice } from "@/shared/db/customer-devices.schema";
 import { customers } from "@/shared/db/customers.schema";
 import type { SelectCustomer } from "@/shared/db/customers.schema";
+import { providers } from "@/shared/db/providers.schema";
+import type { SelectProvider } from "@/shared/db/providers.schema";
 import type { ActionResult } from "@/shared/lib/action-result";
 import { getUser } from "@/shared/lib/supabase/get-user";
 
 export async function listAlertsAction(): Promise<
-  (SelectAlert & { customer: SelectCustomer; device: SelectCustomerDevice | null })[]
+  (SelectAlert & { customer: SelectCustomer; device: SelectCustomerDevice | null; provider: SelectProvider | null })[]
 > {
   const user = await getUser();
   if (user == null) throw new Error("No autorizado");
@@ -21,11 +23,13 @@ export async function listAlertsAction(): Promise<
     .select()
     .from(alerts)
     .innerJoin(customers, eq(alerts.customerId, customers.id))
-    .leftJoin(customerDevices, eq(alerts.deviceId, customerDevices.id));
+    .leftJoin(customerDevices, eq(alerts.deviceId, customerDevices.id))
+    .leftJoin(providers, eq(customerDevices.providerId, providers.id));
   return rows.map((row) => ({
     ...row.alerts,
     customer: row.customers,
     device: row.customer_devices,
+    provider: row.providers,
   }));
 }
 
