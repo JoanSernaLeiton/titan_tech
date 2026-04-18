@@ -21,7 +21,7 @@ interface StatTileProps {
 function StatTile({ icon, label, value, sub, accent = "text-white" }: StatTileProps) {
   return (
     <div className="flex flex-col gap-1 px-6 py-5 border-r border-white/10 last:border-r-0">
-      <div className="flex items-center gap-1.5 text-white/60 text-xs font-medium uppercase tracking-wide">
+      <div className="flex items-center gap-1.5 text-white/60 text-xs font-medium uppercase tracking-wide min-h-[2.5rem]">
         <span>{icon}</span>
         {label}
       </div>
@@ -76,7 +76,7 @@ export function GlobalMetricsPanel() {
           )}
           <span className="inline-flex items-center gap-1">
             <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            En vivo · cada 3 min
+            En vivo · cada 5 min
           </span>
         </div>
       </div>

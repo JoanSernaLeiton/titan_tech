@@ -111,14 +111,14 @@ export function CustomerDetail({
       <CustomerMetricsPanel customerId={customer.id} agreementVariables={variables} />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
+        <TabsList className="mb-2">
           <TabsTrigger value="devices">Dispositivos</TabsTrigger>
           <TabsTrigger value="variables">Variables de Acuerdo</TabsTrigger>
           <TabsTrigger value="thresholds">Umbrales</TabsTrigger>
         </TabsList>
 
         <TabsContent value="devices" className="space-y-4">
-          <Card>
+          <Card className="shadow-sm border-border/50">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Dispositivos</CardTitle>
               <Button onClick={handleAddDevice} size="sm">
@@ -137,7 +137,7 @@ export function CustomerDetail({
         </TabsContent>
 
         <TabsContent value="variables" className="space-y-4">
-          <Card>
+          <Card className="shadow-sm border-border/50">
             <CardHeader>
               <CardTitle>Variables de Acuerdo</CardTitle>
             </CardHeader>
@@ -150,7 +150,7 @@ export function CustomerDetail({
         </TabsContent>
 
         <TabsContent value="thresholds" className="space-y-4">
-          <Card>
+          <Card className="shadow-sm border-border/50">
             <CardHeader>
               <CardTitle>Umbrales</CardTitle>
             </CardHeader>

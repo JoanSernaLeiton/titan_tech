@@ -4,7 +4,6 @@ import { useState } from "react";
 
 import { useCustomerMetrics } from "@/features/dashboard/hooks/use-customer-metrics";
 import { Badge } from "@/shared/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -32,6 +31,29 @@ function fmtCurrency(value: number, unit: string): string {
 
 type DeviceTypeFilter = "all" | "inverter" | "micro_inverter";
 type ProviderFilter = "all" | "growatt" | "huawei" | "deye";
+
+interface StatTileProps {
+  icon: string;
+  label: string;
+  value: string | null;
+  sub?: React.ReactNode;
+  accent?: string;
+}
+
+function StatTile({ icon, label, value, sub, accent = "text-white" }: StatTileProps) {
+  return (
+    <div className="flex flex-col gap-1 px-6 py-5">
+      <div className="flex items-center gap-1.5 text-white/60 text-xs font-medium uppercase tracking-wide min-h-[2.5rem]">
+        <span>{icon}</span>
+        {label}
+      </div>
+      <div className={`text-3xl font-bold leading-tight ${accent}`}>
+        {value ?? <span className="animate-pulse text-white/30 text-2xl">···</span>}
+      </div>
+      {sub != null && <div className="mt-0.5">{sub}</div>}
+    </div>
+  );
+}
 
 export function CustomerMetricsPanel({
   customerId,
@@ -72,29 +94,30 @@ export function CustomerMetricsPanel({
             : "Crítico";
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-2">
-          <h2 className="text-lg font-semibold">Métricas en tiempo real</h2>
+    <div className="rounded-xl overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 shadow-xl">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 flex-wrap gap-3">
+        <div>
+          <h2 className="text-white font-semibold text-base">Métricas en tiempo real</h2>
           {data?.latestSnapshotAt != null && (
-            <span className="text-xs text-muted-foreground">
+            <p className="text-white/50 text-xs mt-0.5">
               Actualizado: {new Date(data.latestSnapshotAt).toLocaleTimeString("es-CO")}
-            </span>
+            </p>
           )}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex items-center gap-3 flex-wrap">
           <Select
             value={deviceType}
             onValueChange={(v) => { setDeviceType(v as DeviceTypeFilter); }}
           >
-            <SelectTrigger className="w-44">
+            <SelectTrigger className="w-44 border-white/20 bg-white/10 text-white text-xs h-8 hover:bg-white/20 focus:ring-white/20">
               <SelectValue placeholder="Tipo de dispositivo" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos los tipos</SelectItem>
-              <SelectItem value="inverter">Inversor</SelectItem>
-              <SelectItem value="micro_inverter">Microinversor</SelectItem>
+            <SelectContent className="bg-slate-800 border-white/10 text-white">
+              <SelectItem value="all" className="text-white/80 focus:bg-white/10 focus:text-white">Todos los tipos</SelectItem>
+              <SelectItem value="inverter" className="text-white/80 focus:bg-white/10 focus:text-white">Inversor</SelectItem>
+              <SelectItem value="micro_inverter" className="text-white/80 focus:bg-white/10 focus:text-white">Microinversor</SelectItem>
             </SelectContent>
           </Select>
 
@@ -102,71 +125,76 @@ export function CustomerMetricsPanel({
             value={provider}
             onValueChange={(v) => { setProvider(v as ProviderFilter); }}
           >
-            <SelectTrigger className="w-36">
+            <SelectTrigger className="w-36 border-white/20 bg-white/10 text-white text-xs h-8 hover:bg-white/20 focus:ring-white/20">
               <SelectValue placeholder="Proveedor" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              <SelectItem value="growatt">Growatt</SelectItem>
-              <SelectItem value="huawei">Huawei</SelectItem>
-              <SelectItem value="deye">DeyeCloud</SelectItem>
+            <SelectContent className="bg-slate-800 border-white/10 text-white">
+              <SelectItem value="all" className="text-white/80 focus:bg-white/10 focus:text-white">Todos</SelectItem>
+              <SelectItem value="growatt" className="text-white/80 focus:bg-white/10 focus:text-white">Growatt</SelectItem>
+              <SelectItem value="huawei" className="text-white/80 focus:bg-white/10 focus:text-white">Huawei</SelectItem>
+              <SelectItem value="deye" className="text-white/80 focus:bg-white/10 focus:text-white">DeyeCloud</SelectItem>
             </SelectContent>
           </Select>
+
+          <span className="inline-flex items-center gap-1.5 text-white/50 text-xs">
+            <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            En vivo · cada 5 min
+          </span>
         </div>
       </div>
 
-      {!hasTargets && (
-        <p className="text-sm text-muted-foreground">
-          Configure las variables de acuerdo para ver dinero ahorrado, performance ratio y CO₂ calculados con precisión.
-        </p>
-      )}
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <MetricCard
-          title="Energía este mes"
-          value={isLoading ? null : `${fmt(data?.energyMonthKwh ?? 0)} kWh`}
-          subtitle="Acumulado mensual"
+      {/* Stat grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 divide-y divide-white/10 lg:divide-y-0 lg:divide-x">
+        <StatTile
           icon="🗓️"
+          label="Energía este mes"
+          value={isLoading ? null : `${fmt(data?.energyMonthKwh ?? 0)} kWh`}
+          sub={<span className="text-white/40 text-xs">Acumulado mensual</span>}
+          accent="text-orange-300"
         />
 
-        <MetricCard
-          title="Energía ahorrada"
-          value={isLoading ? null : `${fmt(data?.energySavedKwh ?? 0)} kWh`}
-          subtitle="Hoy"
+        <StatTile
           icon="⚡"
+          label="Energía ahorrada"
+          value={isLoading ? null : `${fmt(data?.energySavedKwh ?? 0)} kWh`}
+          sub={<span className="text-white/40 text-xs">Hoy</span>}
+          accent="text-yellow-300"
         />
 
-        <MetricCard
-          title="Dinero ahorrado"
+        <StatTile
+          icon="💰"
+          label="Dinero ahorrado"
           value={
             isLoading
               ? null
               : fmtCurrency(data?.moneySaved ?? 0, data?.moneyUnit ?? "COP")
           }
-          subtitle="Hoy"
-          icon="💰"
+          sub={<span className="text-white/40 text-xs">Hoy</span>}
+          accent="text-emerald-300"
         />
 
-        <MetricCard
-          title="Disponibilidad"
-          value={isLoading ? null : `${fmt(data?.availabilityPct ?? 0)}%`}
-          subtitle={
-            data != null
-              ? `${String(data.onlineDevices)}/${String(data.totalDevices)} dispositivos`
-              : "—"
-          }
+        <StatTile
           icon="📶"
-          badge={
+          label="Disponibilidad"
+          value={isLoading ? null : `${fmt(data?.availabilityPct ?? 0)}%`}
+          accent="text-white"
+          sub={
             data != null ? (
-              <Badge variant={availabilityColor}>
-                {availabilityLabel}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <span className="text-white/50 text-xs">
+                  {data.onlineDevices}/{data.totalDevices} disp.
+                </span>
+                <Badge variant={availabilityColor} className="text-xs py-0 h-5">
+                  {availabilityLabel}
+                </Badge>
+              </div>
             ) : undefined
           }
         />
 
-        <MetricCard
-          title="Performance ratio"
+        <StatTile
+          icon="📊"
+          label="Performance ratio"
           value={
             isLoading
               ? null
@@ -174,57 +202,36 @@ export function CustomerMetricsPanel({
                 ? `${fmt(data.performanceRatioPct)}%`
                 : "—"
           }
-          subtitle={
-            data?.performanceRatioPct == null && !isLoading
-              ? "Configure meta mensual"
-              : "vs. meta diaria"
+          sub={
+            <span className="text-white/40 text-xs">
+              {data?.performanceRatioPct == null && !isLoading
+                ? "Configure meta mensual"
+                : "vs. meta diaria"}
+            </span>
           }
-          icon="📊"
+          accent="text-blue-300"
         />
 
-        <MetricCard
-          title="Reducción CO₂"
-          value={isLoading ? null : `${fmt(data?.co2ReductionKg ?? 0)} kg`}
-          subtitle="Hoy"
+        <StatTile
           icon="🌿"
+          label="Reducción CO₂"
+          value={isLoading ? null : `${fmt(data?.co2ReductionKg ?? 0)} kg`}
+          sub={<span className="text-white/40 text-xs">Hoy</span>}
+          accent="text-teal-300"
         />
       </div>
 
-      <div className="text-xs text-muted-foreground text-right">
-        Potencia activa: {isLoading ? "…" : `${fmt(data?.activePowerKw ?? 0)} kW`} · Se actualiza cada 3 min
+      {/* Footer */}
+      <div className="px-6 py-3 border-t border-white/10 flex items-center justify-between gap-4">
+        {!hasTargets && (
+          <p className="text-white/40 text-xs">
+            Configure las variables de acuerdo para ver dinero ahorrado, performance ratio y CO₂ calculados con precisión.
+          </p>
+        )}
+        <span className="text-white/40 text-xs ml-auto shrink-0">
+          Potencia activa: {isLoading ? "…" : `${fmt(data?.activePowerKw ?? 0)} kW`}
+        </span>
       </div>
     </div>
-  );
-}
-
-interface MetricCardProps {
-  title: string;
-  value: string | null;
-  subtitle?: string;
-  icon: string;
-  badge?: React.ReactNode;
-}
-
-function MetricCard({ title, value, subtitle, icon, badge }: MetricCardProps) {
-  return (
-    <Card>
-      <CardHeader className="pb-1 pt-4 px-4">
-        <CardTitle className="text-xs font-medium text-muted-foreground flex items-center gap-1">
-          <span>{icon}</span>
-          {title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="px-4 pb-4">
-        <div className="text-2xl font-bold leading-tight">
-          {value ?? <span className="animate-pulse text-muted-foreground">…</span>}
-        </div>
-        <div className="flex items-center gap-2 mt-1">
-          {subtitle != null && (
-            <span className="text-xs text-muted-foreground">{subtitle}</span>
-          )}
-          {badge}
-        </div>
-      </CardContent>
-    </Card>
   );
 }
