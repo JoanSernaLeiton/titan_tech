@@ -183,9 +183,20 @@ export async function listDailyEnergyInRange(
       )
     );
 
+  // Find devices whose most recent snapshot is online — only those count as "working".
+  const latestByDevice = new Map<string, { at: Date; isOnline: boolean }>();
+  for (const row of snapshots) {
+    const prev = latestByDevice.get(row.deviceId);
+    if (prev == null || row.snapshotAt > prev.at) {
+      latestByDevice.set(row.deviceId, { at: row.snapshotAt, isOnline: row.isOnline });
+    }
+  }
+
   // Per (deviceId, day) take the peak energyTodayKwh — it's a daily-reset counter.
+  // Skip devices whose latest snapshot shows them offline.
   const perDeviceDay = new Map<string, Map<string, number>>();
   for (const row of snapshots) {
+    if (latestByDevice.get(row.deviceId)?.isOnline !== true) continue;
     const dayKey = row.snapshotAt.toISOString().slice(0, 10);
     const energyValue = row.energyTodayKwh != null ? parseFloat(row.energyTodayKwh) : 0;
     const byDay = perDeviceDay.get(row.deviceId) ?? new Map<string, number>();
