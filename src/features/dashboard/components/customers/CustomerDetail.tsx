@@ -42,7 +42,6 @@ interface CustomerDetailProps {
   onDeviceDelete?: (id: string) => void;
   onDeviceCreate?: (device: Partial<SelectCustomerDevice>) => void;
   onDeviceUpdate?: (id: string, device: Partial<SelectCustomerDevice>) => void;
-  onVariablesSave?: (variables: Partial<SelectCustomerAgreementVariable>[]) => void;
   onThresholdsSave?: (thresholds: Partial<SelectCustomerThreshold>[]) => void;
 }
 
@@ -58,7 +57,6 @@ export function CustomerDetail({
   onDeviceDelete,
   onDeviceCreate,
   onDeviceUpdate,
-  onVariablesSave,
   onThresholdsSave,
 }: CustomerDetailProps) {
   const [activeTab, setActiveTab] = useState("devices");
@@ -146,8 +144,6 @@ export function CustomerDetail({
             <CardContent>
               <AgreementVariablesForm
                 customerId={customer.id}
-                variables={variables}
-                onSave={onVariablesSave ?? (() => { /* noop */ })}
               />
             </CardContent>
           </Card>

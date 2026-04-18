@@ -63,12 +63,6 @@ export default function CustomerDetailPage({
     deleteDeviceMutation.mutate({ id, customerId });
   };
 
-  const handleVariablesSave = (
-    _variables: unknown[]
-  ) => {
-    /* noop */
-  };
-
   const handleThresholdsSave = (
     _thresholds: unknown[]
   ) => {
@@ -105,7 +99,6 @@ export default function CustomerDetailPage({
       onDeviceCreate={handleDeviceCreate}
       onDeviceUpdate={handleDeviceUpdate}
       onDeviceDelete={handleDeviceDelete}
-      onVariablesSave={handleVariablesSave}
       onThresholdsSave={handleThresholdsSave}
     />
   );
