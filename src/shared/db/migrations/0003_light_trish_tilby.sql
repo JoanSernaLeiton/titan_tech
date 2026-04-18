@@ -1,0 +1,1 @@
+ALTER TABLE "customer_agreement_variables" ADD CONSTRAINT "customer_agreement_variables_customer_id_variable_unique" UNIQUE("customer_id","variable");

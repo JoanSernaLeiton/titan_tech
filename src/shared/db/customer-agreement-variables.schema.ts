@@ -1,4 +1,4 @@
-import { numeric, pgEnum, pgTable, uuid, boolean } from "drizzle-orm/pg-core";
+import { numeric, pgEnum, pgTable, uuid, boolean, unique } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
 import { customers } from "./customers.schema";
@@ -35,7 +35,9 @@ export const customerAgreementVariables = pgTable("customer_agreement_variables"
   monthlyTarget: numeric("monthly_target").notNull(),
   unit: unitTypeEnum("unit").notNull(),
   enabled: boolean("enabled").notNull().default(true),
-});
+}, (t) => [
+  unique("customer_agreement_variables_customer_id_variable_unique").on(t.customerId, t.variable),
+]);
 
 export const insertCustomerAgreementVariableSchema = createInsertSchema(customerAgreementVariables);
 export const selectCustomerAgreementVariableSchema = createSelectSchema(customerAgreementVariables);

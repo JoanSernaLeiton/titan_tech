@@ -35,7 +35,11 @@ export async function upsertAgreementVariable(data: InsertCustomerAgreementVaria
       .values(validated)
       .onConflictDoUpdate({
         target: [customerAgreementVariables.customerId, customerAgreementVariables.variable],
-        set: validated,
+        set: {
+          monthlyTarget: validated.monthlyTarget,
+          unit: validated.unit,
+          enabled: validated.enabled,
+        },
       })
       .returning();
     return { status: "success", message: `Variable ${upserted?.variable ?? ""} guardada` };
